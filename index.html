@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Name</title>
+  <title>Luke Serrano</title>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -272,30 +272,26 @@
   <section id="about">
     <div class="intro-grid">
       <div>
-        <h1>Hello, I'm Your Name</h1>
+        <h1>Hello, I'm Luke Serrano</h1>
         <p>
-          <!-- EDIT: 2–3 sentence bio. Who are you, where are you, what do you work on? -->
-          I am a [degree/role] in [Department] at [University], advised by
-          <a href="#">Prof. Advisor Name</a>. My research focuses on
-          [brief description of research area]. I am broadly interested in
-          [topics] and their applications to [field].
+          I am a Master's student in Aerospace Engineering at
+          <a href="https://engineering.tamu.edu/aerospace/">Texas A&amp;M University</a>, advised by
+          <a href="https://engineering.tamu.edu/aerospace/profiles/majji-manoranjan.html">Prof. Manoranjan Majji</a>.
+          My research focuses on computer vision for image-driven spacecraft proximity operations,
+          with a current emphasis on monocular pose estimation and neural network-based 2D–3D correspondence learning.
         </p>
         <p>
-          <!-- EDIT: Add background, past experience, collaborations, etc. -->
-          Previously, I worked with [lab/company] on [topic]. I completed my
-          undergraduate degree in [major] at [University].
+          I am currently a Spacecraft GNC Intern at
+          <a href="https://fireflyspace.com">Firefly Aerospace</a> and previously interned at
+          Sandia National Laboratories (DOE L-Clearance) as an NGC Engineer, and at Northrop Grumman
+          in Systems Safety and Reliability Engineering.
         </p>
         <div class="links-row">
-          <a href="mailto:you@university.edu">Email</a>
-          <a href="cv.pdf">CV</a>
-          <a href="https://github.com/yourusername">GitHub</a>
-          <a href="https://linkedin.com/in/yourprofile">LinkedIn</a>
-          <a href="https://scholar.google.com">Scholar</a>
+          <a href="mailto:lukeserrano0@gmail.com">Email</a>
+          <a href="https://www.linkedin.com/in/luke-serrano">LinkedIn</a>
         </div>
       </div>
-      <!-- EDIT: replace src with your actual photo path, e.g. images/portrait.jpg -->
-      <!-- <img src="images/portrait.jpg" alt="Your Name" /> -->
-      <div class="intro-placeholder">Add photo<br/>images/portrait.jpg</div>
+      <img src="images/portrait.jpg" alt="Luke Serrano" />
     </div>
   </section>
 
@@ -304,23 +300,17 @@
     <h2>Education</h2>
 
     <div class="edu-entry">
-      <strong>University Name</strong><br/>
-      <span class="degree">Ph.D., Department Name</span>
-      <span class="year">(20XX – Present)</span><br/>
-      <span style="font-size:0.88rem;color:#888;">Dissertation: <em>Title of your dissertation</em></span>
+      <strong>Texas A&amp;M University</strong><br/>
+      <span class="degree">M.S., Aerospace Engineering</span>
+      <span class="year">(2025 – Present)</span><br/>
+      <span style="font-size:0.88rem;color:#888;">Focus: Computer Vision for Spacecraft Proximity Operations · Advisor: Prof. Manoranjan Majji</span>
     </div>
 
     <div class="edu-entry">
-      <strong>University Name</strong><br/>
-      <span class="degree">M.S., Department Name</span>
-      <span class="year">(20XX – 20XX)</span>
-    </div>
-
-    <div class="edu-entry">
-      <strong>University Name</strong><br/>
-      <span class="degree">B.S., Major Name</span>
-      <span class="year">(20XX – 20XX)</span><br/>
-      <span style="font-size:0.88rem;color:#888;"><em>Honors / GPA note if desired</em></span>
+      <strong>Missouri University of Science &amp; Technology</strong><br/>
+      <span class="degree">B.S., Aerospace Engineering</span>
+      <span class="year">(2022 – 2025)</span><br/>
+      <span style="font-size:0.88rem;color:#888;">GPA: 3.8 &nbsp;·&nbsp; Orbit Determination &amp; Estimation · Optimal Control &amp; Estimation · Orbital Mechanics II</span>
     </div>
   </section>
 
@@ -328,107 +318,103 @@
   <section id="thesis">
     <h2>Thesis Research</h2>
     <p>
-      <!-- EDIT: 1–2 sentence overview of your research thrust -->
-      My doctoral research addresses [broad problem] with the goal of
-      [objective]. The work spans [method/area 1], [method/area 2], and
-      [application domain].
+      My thesis addresses the problem of image-driven spacecraft proximity operations, focusing on accurate
+      and reliable relative pose estimation between a chaser and target spacecraft using monocular vision.
     </p>
 
     <div class="thesis-card">
-      <div class="meta">Current Work</div>
-      <h3>Project / Paper Title Here</h3>
+      <div class="meta">Current Work — Monocular Pose Estimation</div>
+      <h3>Neural Network-Based 2D–3D Correspondence Learning for Spacecraft Pose Estimation</h3>
       <p>
-        <!-- EDIT: Short description of this research thread -->
-        Brief description of what you did, the approach taken, and the key
-        result or contribution. Keep to 2–3 sentences.
+        The core challenge in the monocular Perspective-n-Point (PnP) pose estimation pipeline is reliably
+        obtaining 2D–3D point correspondences. My thesis investigates training a neural network to solve
+        this correspondence problem directly, feeding the learned correspondences into a solvePnP solver
+        to recover the full 6-DOF relative pose.
+      </p>
+      <p>
+        To generate training data, I am developing a Blender synthetic image generation pipeline that
+        renders photorealistic images of a target spacecraft from a 3D STL model. Blender naturally
+        provides ground-truth 2D–3D correspondences, which serve as supervision for the network's
+        cost function.
       </p>
       <div class="pill-row">
-        <span class="pill">Keyword 1</span>
-        <span class="pill">Keyword 2</span>
-        <span class="pill">Keyword 3</span>
-      </div>
-      <div class="btn-row" style="margin-top:0.9rem;">
-        <a class="btn" href="#">PDF</a>
-        <a class="btn" href="#">arXiv</a>
-        <a class="btn" href="#">Code</a>
+        <span class="pill">Monocular Vision</span>
+        <span class="pill">PnP Pose Estimation</span>
+        <span class="pill">Deep Learning</span>
+        <span class="pill">Synthetic Data</span>
+        <span class="pill">Blender</span>
       </div>
     </div>
 
     <div class="thesis-card">
-      <div class="meta">Published / Under Review</div>
-      <h3>Another Paper or Chapter Title</h3>
+      <div class="meta">Prior Work — Point Cloud ICP</div>
+      <h3>Relative Pose Estimation via Iterative Closest Point (ICP)</h3>
       <p>
-        Brief description of this component of your thesis work. What problem
-        does it solve? What is novel about the approach?
+        Initial pose estimation work used Open3D's Iterative Closest Point algorithm on 3D point clouds
+        (~2,000 points per epoch) to estimate the relative pose of a target spacecraft. While achieving
+        reasonable accuracy, ICP showed limitations at structural connectors where image-space information
+        is richer than the point cloud representation — motivating the transition to monocular methods.
       </p>
       <div class="pill-row">
-        <span class="pill">Keyword 1</span>
-        <span class="pill">Keyword 2</span>
-      </div>
-      <div class="btn-row" style="margin-top:0.9rem;">
-        <a class="btn" href="#">Link</a>
-        <a class="btn" href="#">PDF</a>
+        <span class="pill">ICP</span>
+        <span class="pill">Point Cloud</span>
+        <span class="pill">Open3D</span>
+        <span class="pill">Proximity Operations</span>
       </div>
     </div>
   </section>
-
-  <!-- ── PROJECTS ── -->
+<!-- ── PROJECTS ── -->
   <section id="projects">
     <h2>Projects</h2>
 
+    <!-- Project 1: Lunar Lander Pose Estimation -->
     <div class="project-card">
-      <!-- EDIT: replace with <img src="images/project1.png" class="project-thumb" alt="..."> -->
-      <div class="project-thumb-placeholder">img</div>
+      <img src="images/spacecraft_basilisk.png" class="project-thumb" alt="Basilisk spacecraft visualization" />
       <div class="project-info">
         <div class="tag-row">
-          <span class="tag">Category · Year</span>
+          <span class="tag">Estimation &amp; Navigation · Fall 2025</span>
         </div>
-        <h3><a href="#">Project Name One</a></h3>
-        <p>One or two sentences describing what this project does, what you built, and why it's interesting.</p>
+        <h3>Lunar Lander Pose Estimation via EKF/MEKF &amp; Gaussian Mixture Filter</h3>
+        <p>
+          Formulated a Multiplicative Extended Kalman Filter (MEKF) and an Extended Gaussian Mixture
+          Filter (EGMF) to estimate the position, velocity, and attitude of a lunar lander in low lunar
+          orbit using optical landmark measurements and gyroscope data. Both filters achieved attitude
+          error within ±0.2° and position error within ±20 m over a 200-second simulation in Basilisk.
+        </p>
         <div class="btn-row">
-          <a class="btn" href="#">GitHub</a>
-          <a class="btn" href="#">Demo</a>
-          <a class="btn" href="#">Report</a>
+          <a class="btn" href="reports/LunarLanderPoseEstimationReport_Fall25.pdf">Report PDF</a>
         </div>
       </div>
     </div>
 
+    <!-- Project 2: Optimal Attitude Control -->
     <div class="project-card">
       <div class="project-thumb-placeholder">img</div>
       <div class="project-info">
         <div class="tag-row">
-          <span class="tag">Category · Year</span>
+          <span class="tag">Guidance, Navigation &amp; Control · Spring 2025</span>
         </div>
-        <h3><a href="#">Project Name Two</a></h3>
-        <p>One or two sentences describing what this project does, what you built, and why it's interesting.</p>
+        <h3>Optimal Spacecraft Attitude Control Using Linear Error Quaternion Dynamics</h3>
+        <p>
+          Derived a quaternion-based LQR attitude controller with no linearization assumptions by
+          formulating a multiplicative error quaternion regulation problem with a closed-form torque
+          expression. Validated in Basilisk against pole-placement and MRP PD controllers; the LQR
+          approach achieved lower total cost (J* = 0.000435 vs. 0.002951) and faster detumble with
+          less applied torque.
+        </p>
         <div class="btn-row">
-          <a class="btn" href="#">GitHub</a>
-          <a class="btn" href="#">Paper</a>
+          <a class="btn" href="reports/OptimalErrorQuaternionAttitudeControllerReport_Spring25.pdf">Report PDF</a>
         </div>
       </div>
     </div>
 
-    <div class="project-card">
-      <div class="project-thumb-placeholder">img</div>
-      <div class="project-info">
-        <div class="tag-row">
-          <span class="tag">Category · Year</span>
-        </div>
-        <h3><a href="#">Project Name Three</a></h3>
-        <p>One or two sentences describing what this project does, what you built, and why it's interesting.</p>
-        <div class="btn-row">
-          <a class="btn" href="#">GitHub</a>
-        </div>
-      </div>
-    </div>
-
+  
   </section>
 
 </main>
 
 <footer>
-  <!-- EDIT: your name and email -->
-  Your Name &nbsp;·&nbsp; <a href="mailto:you@university.edu">you@university.edu</a>
+  Luke Serrano &nbsp;·&nbsp; <a href="mailto:lukeserrano0@gmail.com">lukeserrano0@gmail.com</a>
 </footer>
 
 </body>
