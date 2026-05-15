@@ -1,130 +1,435 @@
----
-layout: default
----
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Name</title>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<!-- Hero Profile Section -->
-<section class="hero">
-  <div class="hero-body">
-    <div class="container is-max-desktop">
-      <div class="columns is-vcentered">
-        <div class="column">
-          <h1 class="title is-1 publication-title">Hello, I'm {{ site.author.name }}</h1>
-          <div class="is-size-5 publication-authors">
-            <span class="author-block">Graduate Research Assistant</span>
-          </div>
-          <div class="is-size-5 publication-authors">
-            <span class="author-block">Land, Air, and Space Robotics (LASR) Lab — Texas A&M University</span>
-          </div>
-          
-          <!-- Social Icons / Contact Badges -->
-          <div class="column has-text-centered">
-            <div class="publication-links">
-              <span class="link-block">
-                <a href="mailto:{{ site.email }}" class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon"><i class="fas fa-envelope"></i></span>
-                  <span>Email</span>
-                </a>
-              </span>
-              <span class="link-block">
-                <a href="https://linkedin.com{{ site.social.linkedin }}" class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon"><i class="fab fa-linkedin"></i></span>
-                  <span>LinkedIn</span>
-                </a>
-              </span>
-              <span class="link-block">
-                <a href="https://github.com{{ site.social.github }}" class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon"><i class="fab fa-github"></i></span>
-                  <span>GitHub</span>
-                </a>
-              </span>
-            </div>
-          </div>
+    :root {
+      --bg: #faf9f6;
+      --text: #1a1a1a;
+      --muted: #555;
+      --accent: #1a3a5c;
+      --accent-light: #2c5f8a;
+      --rule: #d8d3cc;
+      --card-bg: #f3f0eb;
+      --max-w: 760px;
+    }
 
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(250,249,246,0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--rule);
+      padding: 0 2rem;
+    }
+    nav ul {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0.85rem 0;
+    }
+    nav a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: var(--accent); }
+
+    /* ── LAYOUT ── */
+    main {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 1.5rem 6rem;
+    }
+
+    section { padding: 4rem 0; border-top: 1px solid var(--rule); }
+    section:first-of-type { border-top: none; }
+
+    h1 {
+      font-family: 'Crimson Pro', serif;
+      font-size: 2.6rem;
+      font-weight: 600;
+      color: var(--accent);
+      line-height: 1.15;
+      margin-bottom: 0.6rem;
+    }
+    h2 {
+      font-family: 'Crimson Pro', serif;
+      font-size: 1.7rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.01em;
+    }
+    h3 {
+      font-family: 'Crimson Pro', serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+    p { color: var(--muted); margin-bottom: 0.9rem; }
+    a { color: var(--accent-light); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    hr { border: none; border-top: 1px solid var(--rule); margin: 2rem 0; }
+
+    /* ── INTRO ── */
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1fr 148px;
+      gap: 2.5rem;
+      align-items: start;
+      padding-top: 3.5rem;
+    }
+    .intro-grid img {
+      width: 148px;
+      height: 148px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--rule);
+    }
+    .intro-placeholder {
+      width: 148px;
+      height: 148px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      border: 3px solid var(--rule);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.4;
+    }
+    .links-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.2rem;
+    }
+    .links-row a {
+      display: inline-block;
+      padding: 0.28rem 0.75rem;
+      border: 1px solid var(--accent-light);
+      border-radius: 3px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      transition: background 0.15s, color 0.15s;
+    }
+    .links-row a:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* ── EDUCATION ── */
+    .edu-entry { margin-bottom: 1.6rem; }
+    .edu-entry strong { color: var(--text); font-weight: 500; }
+    .edu-entry .degree { font-style: italic; color: var(--muted); }
+    .edu-entry .year {
+      font-size: 0.82rem;
+      color: #888;
+      margin-left: 0.4rem;
+    }
+
+    /* ── THESIS ── */
+    .thesis-card {
+      background: var(--card-bg);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1.5rem;
+    }
+    .thesis-card .meta {
+      font-size: 0.82rem;
+      color: #888;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .thesis-card p { margin-bottom: 0.5rem; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.8rem; }
+    .pill {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.72rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── PROJECTS ── */
+    .project-card {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 1.2rem;
+      align-items: start;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--rule);
+    }
+    .project-card:last-child { border-bottom: none; }
+    .project-thumb {
+      width: 90px;
+      height: 70px;
+      border-radius: 4px;
+      background: var(--card-bg);
+      border: 1px solid var(--rule);
+      object-fit: cover;
+    }
+    .project-thumb-placeholder {
+      width: 90px;
+      height: 70px;
+      border-radius: 4px;
+      background: var(--card-bg);
+      border: 1px solid var(--rule);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: #aaa;
+      text-align: center;
+    }
+    .project-info .tag-row { display: flex; gap: 0.4rem; margin-bottom: 0.4rem; flex-wrap: wrap; }
+    .tag {
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      font-weight: 500;
+    }
+    .project-info p { font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .btn-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .btn {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.2rem 0.6rem;
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+      color: var(--muted);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--rule);
+      text-align: center;
+      padding: 2rem 1.5rem;
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+
+    @media (max-width: 560px) {
+      .intro-grid { grid-template-columns: 1fr; }
+      .intro-grid img, .intro-placeholder { margin: 0 auto; }
+      .project-card { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <ul>
+    <li><a href="#about">About</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#thesis">Research</a></li>
+    <li><a href="#projects">Projects</a></li>
+  </ul>
+</nav>
+
+<main>
+
+  <!-- ── INTRODUCTION ── -->
+  <section id="about">
+    <div class="intro-grid">
+      <div>
+        <h1>Hello, I'm Your Name</h1>
+        <p>
+          <!-- EDIT: 2–3 sentence bio. Who are you, where are you, what do you work on? -->
+          I am a [degree/role] in [Department] at [University], advised by
+          <a href="#">Prof. Advisor Name</a>. My research focuses on
+          [brief description of research area]. I am broadly interested in
+          [topics] and their applications to [field].
+        </p>
+        <p>
+          <!-- EDIT: Add background, past experience, collaborations, etc. -->
+          Previously, I worked with [lab/company] on [topic]. I completed my
+          undergraduate degree in [major] at [University].
+        </p>
+        <div class="links-row">
+          <a href="mailto:you@university.edu">Email</a>
+          <a href="cv.pdf">CV</a>
+          <a href="https://github.com/yourusername">GitHub</a>
+          <a href="https://linkedin.com/in/yourprofile">LinkedIn</a>
+          <a href="https://scholar.google.com">Scholar</a>
+        </div>
+      </div>
+      <!-- EDIT: replace src with your actual photo path, e.g. images/portrait.jpg -->
+      <!-- <img src="images/portrait.jpg" alt="Your Name" /> -->
+      <div class="intro-placeholder">Add photo<br/>images/portrait.jpg</div>
+    </div>
+  </section>
+
+  <!-- ── EDUCATION ── -->
+  <section id="education">
+    <h2>Education</h2>
+
+    <div class="edu-entry">
+      <strong>University Name</strong><br/>
+      <span class="degree">Ph.D., Department Name</span>
+      <span class="year">(20XX – Present)</span><br/>
+      <span style="font-size:0.88rem;color:#888;">Dissertation: <em>Title of your dissertation</em></span>
+    </div>
+
+    <div class="edu-entry">
+      <strong>University Name</strong><br/>
+      <span class="degree">M.S., Department Name</span>
+      <span class="year">(20XX – 20XX)</span>
+    </div>
+
+    <div class="edu-entry">
+      <strong>University Name</strong><br/>
+      <span class="degree">B.S., Major Name</span>
+      <span class="year">(20XX – 20XX)</span><br/>
+      <span style="font-size:0.88rem;color:#888;"><em>Honors / GPA note if desired</em></span>
+    </div>
+  </section>
+
+  <!-- ── THESIS RESEARCH ── -->
+  <section id="thesis">
+    <h2>Thesis Research</h2>
+    <p>
+      <!-- EDIT: 1–2 sentence overview of your research thrust -->
+      My doctoral research addresses [broad problem] with the goal of
+      [objective]. The work spans [method/area 1], [method/area 2], and
+      [application domain].
+    </p>
+
+    <div class="thesis-card">
+      <div class="meta">Current Work</div>
+      <h3>Project / Paper Title Here</h3>
+      <p>
+        <!-- EDIT: Short description of this research thread -->
+        Brief description of what you did, the approach taken, and the key
+        result or contribution. Keep to 2–3 sentences.
+      </p>
+      <div class="pill-row">
+        <span class="pill">Keyword 1</span>
+        <span class="pill">Keyword 2</span>
+        <span class="pill">Keyword 3</span>
+      </div>
+      <div class="btn-row" style="margin-top:0.9rem;">
+        <a class="btn" href="#">PDF</a>
+        <a class="btn" href="#">arXiv</a>
+        <a class="btn" href="#">Code</a>
+      </div>
+    </div>
+
+    <div class="thesis-card">
+      <div class="meta">Published / Under Review</div>
+      <h3>Another Paper or Chapter Title</h3>
+      <p>
+        Brief description of this component of your thesis work. What problem
+        does it solve? What is novel about the approach?
+      </p>
+      <div class="pill-row">
+        <span class="pill">Keyword 1</span>
+        <span class="pill">Keyword 2</span>
+      </div>
+      <div class="btn-row" style="margin-top:0.9rem;">
+        <a class="btn" href="#">Link</a>
+        <a class="btn" href="#">PDF</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PROJECTS ── -->
+  <section id="projects">
+    <h2>Projects</h2>
+
+    <div class="project-card">
+      <!-- EDIT: replace with <img src="images/project1.png" class="project-thumb" alt="..."> -->
+      <div class="project-thumb-placeholder">img</div>
+      <div class="project-info">
+        <div class="tag-row">
+          <span class="tag">Category · Year</span>
+        </div>
+        <h3><a href="#">Project Name One</a></h3>
+        <p>One or two sentences describing what this project does, what you built, and why it's interesting.</p>
+        <div class="btn-row">
+          <a class="btn" href="#">GitHub</a>
+          <a class="btn" href="#">Demo</a>
+          <a class="btn" href="#">Report</a>
         </div>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- About Me Section -->
-<section class="section">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">About Me</h2>
-        <div class="content has-text-justified">
-          <p>{{ site.author.bio | markdownify }}</p>
+    <div class="project-card">
+      <div class="project-thumb-placeholder">img</div>
+      <div class="project-info">
+        <div class="tag-row">
+          <span class="tag">Category · Year</span>
+        </div>
+        <h3><a href="#">Project Name Two</a></h3>
+        <p>One or two sentences describing what this project does, what you built, and why it's interesting.</p>
+        <div class="btn-row">
+          <a class="btn" href="#">GitHub</a>
+          <a class="btn" href="#">Paper</a>
         </div>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- Technical Projects Section -->
-<section class="section">
-  <div class="container is-max-desktop">
-    <h2 class="title is-3">Technical Projects & Research</h2>
-    
-    {% for project in site.data.projects %}
-    <div class="columns is-centered project-row" style="margin-bottom: 3rem; border-bottom: 1px solid #f5f5f5; padding-bottom: 2rem;">
-      
-      <!-- Left side: Interactive Visual Node (Matches David / Keunhong hover video feature) -->
-      <div class="column is-three-tenths current-project-media">
-        <div class="columns-image" style="background: #fafafa; border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: center; height: 100%;">
-          {% if project.image_mouseover %}
-            <video poster="assets/img/{{ project.image }}" autoplay controls muted loop playsinline height="100%">
-              <source src="assets/img/{{ project.image_mouseover }}" type="video/mp4">
-            </video>
-          {% else %}
-            <img src="assets/img/{{ project.image }}" alt="{{ project.title }}" style="border-radius: 4px;">
-          {% endif %}
+    <div class="project-card">
+      <div class="project-thumb-placeholder">img</div>
+      <div class="project-info">
+        <div class="tag-row">
+          <span class="tag">Category · Year</span>
         </div>
-      </div>
-
-      <!-- Right side: Meta Text Details -->
-      <div class="column is-seven-tenths">
-        <h3 class="title is-4" style="color: #363636; margin-bottom: 0.25rem;">{{ project.title }}</h3>
-        <p class="is-size-6" style="color: #7a7a7a; font-weight: 500; margin-bottom: 0.75rem;">{{ project.venue }}</p>
-        <div class="content is-size-6" style="color: #4a4a4a; line-height: 1.6;">
-          <p>{{ project.description }}</p>
+        <h3><a href="#">Project Name Three</a></h3>
+        <p>One or two sentences describing what this project does, what you built, and why it's interesting.</p>
+        <div class="btn-row">
+          <a class="btn" href="#">GitHub</a>
         </div>
-        <div class="publication-links">
-          {% if project.project_page %}
-            <a href="{{ project.project_page }}" class="external-link button is-small is-rounded is-light">
-              <span class="icon"><i class="fab fa-github"></i></span>
-              <span>Code & Architecture</span>
-            </a>
-          {% endif %}
-        </div>
-      </div>
-
-    </div>
-    {% endfor %}
-  </div>
-</section>
-
-<!-- Education Timeline Section -->
-<section class="section" style="background-color: #fafafa;">
-  <div class="container is-max-desktop">
-    <h2 class="title is-3">Education</h2>
-    <div class="columns is-centered">
-      <div class="column is-full">
-        {% for edu in site.data.education %}
-          <div class="box" style="box-shadow: none; border: 1px solid #eef0f2; margin-bottom: 1.5rem; padding: 2rem;">
-            <div class="columns">
-              <div class="column is-nine-tenths">
-                <h3 class="title is-4" style="margin-bottom: 0.5rem;">{{ edu.name }}</h3>
-                <div class="content is-size-6" style="color: #4a4a4a;">
-                  {{ edu.description }}
-                </div>
-              </div>
-              <div class="column is-one-tenth has-text-right-tablet">
-                <span class="tag is-light is-medium" style="font-weight: 600; background: #e2e8f0;">{{ edu.dates }}</span>
-              </div>
-            </div>
-          </div>
-        {% endfor %}
       </div>
     </div>
-  </div>
-</section>
+
+  </section>
+
+</main>
+
+<footer>
+  <!-- EDIT: your name and email -->
+  Your Name &nbsp;·&nbsp; <a href="mailto:you@university.edu">you@university.edu</a>
+</footer>
+
+</body>
+</html>
