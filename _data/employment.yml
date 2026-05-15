@@ -1,0 +1,29 @@
+- company: Land, Air, and Space Robotics (LASR) Lab
+  description: >-
+    Computer Vision Lead at the high-fidelity spacecraft emulation laboratory. 
+    Developed a ROS-based object-detection stereo camera relative position tracking algorithm and 
+    optical relative pose estimation algorithms for simulated satellite proximity operations and docking.
+  dates: "Aug 2025 - Present"
+  location: College Station, TX
+
+- company: Firefly Aerospace
+  description: >-
+    Spacecraft GNC Intern.
+  dates: "Summer 2026" # Update with your exact internship dates
+  location: Cedar Park, TX
+
+
+- company: Sandia National Laboratories
+  description: >-
+    Missile Guidance, Navigation, and Control (GNC) Engineer Intern. 
+    Improved navigation regression test frameworks via flight sensor data playback, created an independent 
+    Inertial Navigation System (INS) velocity-error algorithm, and assisted in TVC autopilot trajectory generation.
+  dates: "Jan 2024 - Aug 2025"
+  location: Albuquerque, NM
+
+
+- company: Northrop Grumman
+  description: >-
+    Systems Engineeriung Intern. 
+  dates: "Summer 2023" # Update with your exact employment dates
+  location: United States # Update with your specific office location (e.g., Redondo Beach, CA)
