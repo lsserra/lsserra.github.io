@@ -1,0 +1,387 @@
+%-----------------------------------------------------------------------------------------------------------------------------------------------%
+%	The MIT License (MIT)
+%
+%	Copyright (c) 2021 Jitin Nair
+%
+%	Permission is hereby granted, free of charge, to any person obtaining a copy
+%	of this software and associated documentation files (the "Software"), to deal
+%	in the Software without restriction, including without limitation the rights
+%	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+%	copies of the Software, and to permit persons to whom the Software is
+%	furnished to do so, subject to the following conditions:
+%	
+%	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+%	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+%	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+%	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+%	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+%	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+%	THE SOFTWARE.
+%	
+%
+%-----------------------------------------------------------------------------------------------------------------------------------------------%
+
+%----------------------------------------------------------------------------------------
+%	DOCUMENT DEFINITION
+%----------------------------------------------------------------------------------------
+
+% article class because we want to fully customize the page and not use a cv template
+\documentclass[a4paper,12pt]{article}
+
+%----------------------------------------------------------------------------------------
+%	FONT
+%----------------------------------------------------------------------------------------
+
+% % fontspec allows you to use TTF/OTF fonts directly
+% \usepackage{fontspec}
+% \defaultfontfeatures{Ligatures=TeX}
+
+% % modified for ShareLaTeX use
+% \setmainfont[
+% SmallCapsFont = Fontin-SmallCaps.otf,
+% BoldFont = Fontin-Bold.otf,
+% ItalicFont = Fontin-Italic.otf
+% ]
+% {Fontin.otf}
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES
+%----------------------------------------------------------------------------------------
+\usepackage{url}
+\usepackage{parskip} 
+
+%other packages for formatting
+\RequirePackage{color}
+\RequirePackage{graphicx}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage[scale=.91]{geometry}
+
+
+
+%tabularx environment
+\usepackage{tabularx}
+
+%for lists within experience section
+\usepackage{enumitem}
+
+% centered version of 'X' col. type
+\newcolumntype{C}{>{\centering\arraybackslash}X} 
+
+%to prevent spillover of tabular into next pages
+\usepackage{supertabular}
+\usepackage{tabularx}
+\newlength{\fullcollw}
+\setlength{\fullcollw}{1.0\textwidth}
+
+%custom \section
+\usepackage{titlesec}				
+\usepackage{multicol}
+\usepackage{multirow}
+
+%CV Sections inspired by: 
+%http://stefano.italians.nl/archives/26
+\titleformat{\section}{\Large\scshape\raggedright}{}{0em}{}[\titlerule]
+\titlespacing{\section}{0pt}{3pt}{3pt}
+
+%for publications
+\usepackage[style=authoryear,sorting=ynt, maxbibnames=2]{biblatex}
+
+%Setup hyperref package, and colours for links
+\usepackage[unicode, draft=false]{hyperref}
+\definecolor{linkcolour}{rgb}{0,0.2,0.6}
+\hypersetup{colorlinks,breaklinks,urlcolor=linkcolour,linkcolor=linkcolour}
+\addbibresource{citations.bib}
+\setlength\bibitemsep{1em}
+
+%for social icons
+\usepackage{fontawesome5}
+
+
+
+
+%debug page outer frames
+%\usepackage{showframe}
+
+%----------------------------------------------------------------------------------------
+%	BEGIN DOCUMENT
+%----------------------------------------------------------------------------------------
+\begin{document}
+
+
+	
+	% non-numbered pages
+	\pagestyle{empty} 
+	
+	%----------------------------------------------------------------------------------------
+	%	TITLE
+	%----------------------------------------------------------------------------------------
+	
+	% \begin{tabularx}{\linewidth}{ @{}X X@{} }
+		% \huge{Your Name}\vspace{2pt} & \hfill \emoji{incoming-envelope} email@email.com \\
+		% \raisebox{-0.05\height}\faGithub\ username \ | \
+		% \raisebox{-0.00\height}\faLinkedin\ username \ | \ \raisebox{-0.05\height}\faGlobe \ mysite.com  & \hfill \emoji{calling} number
+		% \end{tabularx}
+	\vspace{-5pt}
+	\begin{tabularx}{\linewidth}{@{} C @{}}
+		\Huge{Luke Serrano} \\[7.5pt]
+		\href{mailto:lukeserrano0@gmail.com}{\raisebox{-0.05\height}\faEnvelope \ lukeserrano0@gmail.com} \ $|$ \ 
+		\href{https://www.linkedin.com/in/luke-serrano-ab8063252/}{\faLinkedin\ Luke Serrano} \ $|$ \ 
+		\href{tel:+6183345046}{\raisebox{-0.05\height}\faMobile \ (618) 334-5046} \\
+	\end{tabularx}
+	
+%	GPT HEADER HELP:
+%	\begin{tabularx}{\textwidth}{@{}X@{}}
+%    \Huge{Luke Serrano} \\[7.5pt]
+%    \href{mailto:lukeserrano0@gmail.com}{\faEnvelope\ \texttt{lukeserrano0@gmail.com}} \quad $|$ \quad
+%    \href{tel:+16183345046}{\faMobile\ (618) 334-5046} \quad $|$ \quad
+%    \href{https://www.linkedin.com/in/yourusername}{\faLinkedin\ linkedin.com/in/yourusername}
+%\end{tabularx}
+	%----------------------------------------------------------------------------------------
+	% EXPERIENCE SECTIONS
+	%----------------------------------------------------------------------------------------
+	
+	%Experience
+	\section{Experience}	
+	%========================================
+	% LASR
+	%========================================
+			\begin{tabularx}{\linewidth}{ @{}l r@{} }
+		\textbf{Land, Air, and Space Robotics (LASR) Lab} & \hfill Aug 2025 - Present \\[3.75pt]
+		Computer Vision Lead  & \hfill  College Station, TX \\[3.75pt]
+		\multicolumn{2}{@{}X@{}}{
+			\begin{minipage}[t]{\linewidth}
+				\begin{itemize}[nosep,after=\strut, leftmargin=1em, itemsep=3pt]
+					\item[--] Lead development and maintenance of computer vision capabilities on robotic testbeds in spacecraft emulation laboratory		
+					\item[--] Created an object-detection–based stereo camera relative position tracking algorithm in Robot Operating System (ROS) to support downstream estimation and control
+					\item[--] Developing an optical relative pose estimation algorithm to facilitate precise simulated robotic satellite close-proximity docking and manipulation tasks
+					\item[--] Manage imagery datasets for object detection models, ROS Git repositories, and stereo camera integration on robotic platforms
+					%\item[--] Exploring non-cooperative rigid body shape recovery from stereo camera to estimate pose for relative proximity operations
+					%\item[--] Constructing a ROS2 node that performs real-time object detection and depth estimation to provide downstream controllers with relative position information
+					%\item[--] Collaborating with team to integrate multiple GNC algorithms to perform an informative projectile deflection robotic demonstration
+					%\item[--] Collaborate with a multidisciplinary team to maintain and develop spacecraft emulation robotic testbeds %while delivering quarterly, sponsor-defined technical milestones
+					%\item[--] Created object detection model agnostic relative position tracking ROS2 algorithm to feed downstream estimation and control algorithms
+					%\item[--] Manage imagery datasets for object detection models, ROS2 Git repositories, and stereo camera integration into our robotic systems
+			\end{itemize}
+			\end{minipage}
+	}
+	\end{tabularx}	
+	%========================================
+	% SANDIA
+	%========================================
+			\begin{tabularx}{\linewidth}{ @{}l r@{} }
+		\textbf{Sandia National Laboratories Year-Round Intern (Held Clearance)} & \hfill Jan 2024 - Aug 2025 \\[3.75pt]
+		Missile Guidance, Navigation, and Control (GNC) Engineer  & \hfill  Albuquerque, NM \\[3.75pt]
+		\multicolumn{2}{@{}X@{}}{
+			\begin{minipage}[t]{\linewidth}
+				\begin{itemize}[nosep,after=\strut, leftmargin=1em, itemsep=3pt]
+					\item[--] Proved ability to work within a multi-language software framework, dive into mathematical theory, develop within a Git workflow, and contribute meaningfully to a GNC team
+					\item[--] Improved navigation regression test framework that stresses the robustness of current and future missile navigation algorithms by implementing the ability to playback flight sensor data
+					\item[--] Analyzed telemetry from IMU calibration procedure and C++ navigation software to create an independent Inertial Navigation System algorithm in an attempt to explain accumulation of velocity-error 	
+					\item[--] Assisted in the generation of optimal trajectories and creation of a thrust vector control autopilot to supply customer with impact results from an end-to-end Monte Carlo analysis
+					%\item[--] Created an attitude control system (ACS) trade study simulation tool to validate spin and orientation requirements across physical features and controller configurations
+				 	%\item[--] Developed an attitude control system (ACS) trade study simulation tool, applied it to tune controller deadbands and validate adherence to roll rate and orientation requirements
+					%\item[--] Developed version-controlled C++ automated flight termination unit SWIL package, supplying customer with 15x real-time Core Autonomous Safety Software mission rules development
+					%\item[--] Minimized dissemination of internal source code by building simulation executable against a shared DLL wrapper that uses same versioned CASS wrapper (CHANGE) in SWIL, HWIL, and flight	
+					%\item[--] Worked within the Simulink simulation and MATLAB post processing repositories to improve navigator verification framework
+					%\item[--] Worked with GitLab submodules, rebasing, mixed resets, squashed commits, merge requests, and resolving merge conflicts to push development code up for CI and review	
+					%\item[--] Improved ACS valve-timing test and analysis to quantify pressure lag from on/off commands, increasing simulation fidelity
+					%\item[--] Modified auto-generated XML messaging framework, C++ embedded, and Java interface software to set control algorithm parameter in real-time for dynamic initial tank pressure testing
+					%\item[--] Thoroughly enjoyed going to work because of the team comradery that was built through successive quality interacts with my team
+			\end{itemize}
+			\end{minipage}
+	}
+	\end{tabularx}
+	%========================================
+	% MSAT
+	%========================================
+	\begin{tabularx}{\linewidth}{ @{}l r@{} }
+		\textbf{Missouri S\&T Satellite Research Team (M-SAT)} & \hfill Aug 2022 - May 2025 \\[3.75pt]
+		Co-Chief Engineer and GNC Subsystem Member & \hfill  Rolla, MO \\[3.75pt]
+		%Missouri University of Science \& Technology & \hfill  Rolla, MO \\[3.75pt]
+		\multicolumn{2}{@{}X@{}}{
+			\begin{minipage}[t]{\linewidth}
+				\begin{itemize}[nosep,after=\strut, leftmargin=1em, itemsep=3pt]
+					%\item[--] Two active missions, funded by NASA and Air Force Research Laboratory 
+					%\item[--] Integrating to Chief Engineer of our M3 mission (set to launch January 2024)
+					%\item[--] Lead communication for team of 20 
+					%\item[--] Co-Chief Engineer of close-proximity satellite mission
+					%\item[--] Communicate with nine subsystem leads to ensure proper direction and progression of satellite development
+					%\item[--] Built wrapper between flight software and NASA 42 simulator to validate close-proximity GNC algorithms
+					\item[--] Managed Git repositories and NASA's 42 simulator integration for close-proximity GNC team
+					%\item[--] Contributed to the development of cubesat PCB and embedded software leading up to teams first launch spring 2024
+					%\item[--] Conducted system level testing to verify final hardware and software before flight model integration of team's first launched satellite
+					%\item[--] Presenting university spacecraft NGC algorithm verification using NASA 42 simulator poster at spring 2025 AAS Rocking Mountain Conference
+					%\item[--]  Built C++ software library to encompass satellite's mission operations
+					%\item[--] Troubleshot SPI, I2C, and USART communication on PCB's to develop interface between microcontrollers and devices
+					%\item[--] Troubleshot circuit board communication protocols to develop interface between microcontrollers and devices on first launched satellite
+					%\item[--] Developing on-site ground station to communicate with our satellite on orbit and organize downlinked data
+					%\item[--] Program sensor and circuitry board communication throughout satellite
+					%\item[--] Building software flow (start to end) of autonomous satellite's mission with team
+					%\item[--] Conducted pulse density modulation tests on the propulsion system to determine magnitude of thrust for NGC algorithm  
+					%\item[--] Experience in propulsion, command and data handling, and NGC 	
+					%\item[--] Used global simulation program to verify required distance from ISS was met before start of mission
+					%\item[--] Use LaTeX to create proper documentation
+				\end{itemize}
+			\end{minipage}
+	}
+	\end{tabularx}
+	
+	%========================================
+	% NG
+%	%========================================
+%		\begin{tabularx}{\linewidth}{ @{}l r@{} }
+%		\textbf{Northrop Grumman Internship} & \hfill June 2023 - Aug 2023 \\[3.75pt]
+%		Northrop Grumman Satellite Systems Engineering Intern & \hfill  Gilbert, AZ \\[3.75pt]
+%		
+%		\multicolumn{2}{@{}X@{}}{
+%%			\begin{minipage}[t]{\linewidth}
+%%				\begin{itemize}[nosep,after=\strut, leftmargin=1em, itemsep=3pt]
+%%					%\item[--] Specialty Systems Engineer Intern at satellite manufacturing facility
+%%					%\item[--] Exposure to industry with requirements, a paying customer, deadlines, and expected mission success
+%%					%\item[--] Performed analyses and created documentation to verify launch requirements from the launch provider
+%%					%\item[--] Proposed requirement wording changes so that no additional spacecraft testing was needed
+%%				\end{itemize}
+%%			\end{minipage}
+%	}
+%	
+%	\end{tabularx}
+	
+	%========================================
+	% Personal Projects
+	%========================================
+		\begin{tabularx}{\linewidth}{ @{}l r@{} }
+		\textbf{Personal Projects} & \hfill  \\[3.75pt]
+		\multicolumn{2}{@{}X@{}}{
+			\begin{minipage}[t]{\linewidth}
+				\begin{itemize}[nosep,after=\strut, leftmargin=1em, itemsep=3pt]
+					\item[--] Designed, implemented, and compared EKF/MEKF against Extended Gaussian Mixture Filter for lunar lander pose estimation utilizing inertial and landmark measurements (Python)(Fall 2025)					
+					%\item[--] Designed and implemented an INS coupled Error-State Kalman Filter navigation algorithm in NASA's 42 simulator for pose estimation of a LEO satellite (C/C++)(Fall 2024)
+					\item[--] Leveraged NASA's Godard Imaging and Analysis Navigation Tool to perform camera calibration, stellar, and relative optical navigation with NASA DAWN imagery (Python)(Spring 2025)
+					\item[--] Implemented an LQR optimal error-quaternion attitude controller for a spacecraft using Colorado Boulder’s Basilisk astrodynamics simulation framework (Python)(Spring 2025)
+				\end{itemize}
+			\end{minipage}
+	}
+	\end{tabularx}
+
+%	%Projects
+%	\section{Projects}
+%	
+%	\begin{tabularx}{\linewidth}{ @{}l r@{} }
+%		\textbf{Some Project} & \hfill \href{https://some-link.com}{Link to Demo} \\[3.75pt]
+%		\multicolumn{2}{@{}X@{}}{long long line of blah blah that will wrap when the table fills the column width long long line of blah blah that will wrap when the table fills the column width long long line of blah blah that will wrap when the table fills the column width long long line of blah blah that will wrap when the table fills the column width}  \\
+%	\end{tabularx}
+		
+		
+		
+		
+			%----------------------------------------------------------------------------------------
+	%	EDUCATION	%----------------------------------------------------------------------------------------
+	\section{Education}
+	\begin{tabularx}{\linewidth}{@{}l X@{}}	
+
+		\textbf{Texas A\&M University} 				& \hfill Fall 2025 - Spring 2027 \\		
+		Pursuing M.S. in Aerospace Engineering 							& \hfill \textbf{GPA: 4.0} \\
+		\multicolumn{2}{c}{\emph{Optimal Estimation of Dynamic Systems, Advanced Dynamics , Orbital Mechanics, Optimal Control}} \\ [0.18cm]
+ 	
+		\textbf{Missouri University of Science \& Technology} 	& \hfill Fall 2022 - Spring 2025 \\		
+		B.S. in Aerospace Engineering 						& \hfill \textbf{GPA: 3.82} \\
+		\multicolumn{2}{c}{\emph{Orbital Mechanics II; Orbit Determination and Estimation; Optimal Control}} \\ [0.18cm]
+%		\textbf{Southwestern Illinois College} 				& \hfill Jun 2021 - Aug 2022 \\		
+%		Pursued Associates in Science 							& \hfill \textbf{GPA: 3.8} \\ 	
+		%\multicolumn{2}{c}{\emph{Calculus I, II, \& III; Physics I, II, \& III; Differential Equations; Statics;  Engineering Graphics}} \\ [0.18cm]
+		%\textbf{Kaskaskia College} 						& \hfill Aug 2019 - May 2021 \\		
+		%General Studies 								& \hfill \textbf{GPA: 4.0} \\ 
+		%\textbf{Wesclin High School} 						& \hfill Aug 2017 - May 2022 \\		
+		%High School Diploma  							& \hfill \textbf{GPA: 3.9} \\
+	\end{tabularx}
+		
+		%----------------------------------------------------------------------------------------
+	%	SKILLS
+	%----------------------------------------------------------------------------------------
+	\section{Skills}
+	\begin{tabularx}{\linewidth}{l l l}
+		- Object-Oriented Programming & \hspace{1em}- C++ syntax, compilation, and linking & \hspace{1em}- Git Workflow \vspace{3pt}\\
+		- Pub/Sub Messaging & \hspace{1em}- Mathematical Troubleshooting & \hspace{1em}- Python\vspace{3pt}\\  
+		- Linux Environment & \hspace{1em}- Simulink Simulation Development   & \hspace{1em}- Self-Directed Learner\\
+	\end{tabularx}
+	%\center{\footnotesize Last updated: \today}
+	
+	
+\end{document}
+	
+	
+	%========================================
+			%% !! ARCHIVE !!
+	%========================================
+
+		
+	%========================================
+	% SHPE E-BOARD
+	%========================================
+	
+%	\begin{tabularx}{\linewidth}{ @{}l r@{} }
+%	\textbf{SHPE Executive Board Position} & \hfill Jan 2023 - Present \\[3.75pt]
+%	Society of Hispanic Professional Engineers & \hfill Rolla, MO \\[3.75pt]
+%	\multicolumn{2}{@{}X@{}}{
+%		\begin{minipage}[t]{\linewidth}
+%			\begin{itemize}[nosep,after=\strut, leftmargin=1em, itemsep=3pt]
+%				\item[--] Personal Relations Chair 
+%				\item[--] Support professional development of members by coordinating company sponsored professional development events
+%				\item[--] Empower Hispanics to succeed in STEM by hosting weekly meetings and school wide events
+%				%\item[--] Control all social media pages with the goal of increasing student engagement 
+%			\end{itemize}
+%		\end{minipage}
+%	}
+%	\end{tabularx}
+	
+	
+	%========================================
+	% TOUR GUIDE
+	%========================================
+	
+%\begin{tabularx}{\linewidth}{ @{}l r@{} }
+	%	\textbf{Tour Guide} & \hfill Jan 2023 -  Present \\[3.75pt]
+	%	Missouri University of Science and Technology & \hfill Rolla, MO \\[3.75pt]
+	%	\multicolumn{2}{@{}X@{}}{
+	%		\begin{minipage}[t]{\linewidth}
+	%			\begin{itemize}[nosep,after=\strut, leftmargin=1em, itemsep=3pt]
+	%				\item[--] Give tours of our Mechanical and Aerospace Engineering building and labs 
+	%				%\item[--] Created virtual tour on YouTube
+	%				\item[--] Give honest advice from a current student's perspective to improve potential students outlook on S\&T
+	%			\end{itemize}
+	%		\end{minipage}
+	%	}
+	%\end{tabularx}
+	
+	
+	%========================================
+	% SWIC TUTOR
+	%========================================
+%	\begin{tabularx}{\linewidth}{ @{}l r@{} }
+%	\textbf{Peer Tutor} & \hfill Aug 2021 - July 2022 \\[3.75pt]
+%	Southwestern Illinois College & \hfill Belleville, IL \\[3.75pt]
+%	\multicolumn{2}{@{}X@{}}{
+%		\begin{minipage}[t]{\linewidth}
+%			\begin{itemize}[nosep,after=\strut, leftmargin=1em, itemsep=3pt]
+%				\item[--] Tutored for three semesters at the Success Center, assisting students in mathematics and science 
+%				\item[--] Collaborated with other peer tutors to address student comprehension challenges 
+%				\item[--] Improved skill of putting my thoughts into words that can be better understood by others	
+%			\end{itemize}
+%		\end{minipage}
+%	}
+%	\end{tabularx}
+
+	
+	
+
+	
+%        	%----------------------------------------------------------------------------------------
+%        	%	PUBLICATIONS
+%        	%----------------------------------------------------------------------------------------
+%        	\section{Publications}
+%        	\begin{refsection}[citations.bib]
+%        		\nocite{*}
+%        		\printbibliography[heading=none]
+%        	\end{refsection}
+	
+	

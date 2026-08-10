@@ -1,1 +1,10 @@
 **.DS_Store
+# Ignore LaTeX auxiliary files
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.bcf
+*.run.xml
+*.dvi
