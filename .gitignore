@@ -8,3 +8,5 @@
 *.bcf
 *.run.xml
 *.dvi
+*.fdb_latexmk
+*.fls
