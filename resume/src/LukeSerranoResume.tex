@@ -152,8 +152,9 @@
 			\begin{minipage}[t]{\linewidth}
 				\begin{itemize}[nosep,after=\strut, leftmargin=1em, itemsep=3pt]
 					\item[--] Engineered a synthetic starfield emulation framework within a NASA TRICK simulation to validate optical payload algorithms, data exchange, and HWIL execution
-					\item[--] Creatively defined an Image Generation frame to obtain required sythetic starfield emulation RA, Dec, and Roll angles from Euler 3-2-1 expression of intertial to Image Generation attitude
-					\item[--] Developed an interface class to model camera exposure timing and push image generation data to the starfield emulator client, achieving a 60ms image generation time, satisfying 300ms real-time constraint
+					\item[--] Creatively defined an Image Generation frame to obtain sythetic starfield emulation inputs: RA, Dec, and Roll angles from Euler 3-2-1 expression of intertial to Image Generation attitude
+					\item[--] Built an interface class to model camera exposure timing, serialize data, and push it over socket to trigger synthetic starfield generation, achieving 60ms latency within the 300ms real-time constraint
+					\item[--] Wrote a simple attitude determination Fprime component that propagates attitude solution with a rate source between brute force measurement updates for spacecraft commissioning
 			\end{itemize}
 			\end{minipage}
 	}
@@ -172,7 +173,7 @@
 					\item[--] Collaborate with a multidisciplinary team to maintain and develop close-proximity spacecraft emulation robotic testbeds to deliver quarterly, sponsor-defined technical milestones
 					\item[--] Leveraged object-detection model and stereo-camera depth information to generate relative position tracking algorithm in Robot Operating System (ROS) to feed downstream estimation and control loops
 					\item[--] Developed real-time relative pose estimation algorithm using stereo-vision point cloud registration to facilitate autonomous robotic gripping and capture operations
-					\item[--] Performeing a comparative analysis between real-time stereo and monocular relative pose estimation schemes to optimize accuracy, complexity, and computational efficiency
+					\item[--] Performing a comparative analysis between real-time stereo and monocular relative pose estimation schemes to optimize accuracy, complexity, and computational efficiency
 					% \item[--] Manage imagery datasets for object detection models, ROS Git repositories, and stereo camera integration on robotic platforms
 					%\item[--] Exploring non-cooperative rigid body shape recovery from stereo camera to estimate pose for relative proximity operations
 					%\item[--] Constructing a ROS2 node that performs real-time object detection and depth estimation to provide downstream controllers with relative position information
@@ -319,7 +320,7 @@
 	%----------------------------------------------------------------------------------------
 	\section{Skills}
 	\begin{tabularx}{\linewidth}{l l l}
-		- Object-Oriented Programming & \hspace{1em}- C++ syntax, compilation, and linking & \hspace{1em}- Git Workflow \vspace{3pt}\\
+		- Object-Oriented Programming & \hspace{1em}- Multi-Respository Git Workflow & \hspace{1em}- C++ \vspace{3pt}\\
 		- Pub/Sub Messaging & \hspace{1em}- Mathematical Troubleshooting & \hspace{1em}- Python\vspace{3pt}\\  
 		- Attitude Interpretation & \hspace{1em}- NASA TRICK / JEOD Simulation Development   & \hspace{1em}- Linux\\
 	\end{tabularx}
