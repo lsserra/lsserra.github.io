@@ -10,4 +10,10 @@
 *.dvi
 *.fdb_latexmk
 *.fls
-*LukeSerranoResume.pdf
+*.pdf
+# Ignore Beamer build artifacts
+*.nav
+*.snm
+*.vrb
+*.bbl
+*.blg
