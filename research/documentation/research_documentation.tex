@@ -1,0 +1,208 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}  
+\usepackage{graphicx} 
+\usepackage{amsmath} 
+\usepackage[version=4]{mhchem} 
+\usepackage{siunitx} 
+\usepackage{longtable,tabularx}   
+\usepackage{amssymb, bm} % Removed duplicate amsmath load   
+\usepackage{verbatim}    
+\usepackage{listings}  
+\usepackage{xcolor} % Added missing package for \definecolor
+
+\definecolor{codegray}{rgb}{0.5,0.5,0.5} 
+\definecolor{codepurple}{rgb}{0.58,0,0.82} 
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{pythonstyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegray},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=4,
+    language=Python
+}
+
+\lstset{style=pythonstyle}
+
+
+\setlength\LTleft{0pt} 
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% HELPFUL MATH DEFINITIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% vectors / matrices
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\mat}[1]{\mathbf{#1}}
+
+% position / velocity / quaternion shorthands
+\newcommand{\rBM}{\vect{r}^M_{B/M}}      % position of B wrt M expressed in M
+\newcommand{\vBM}{\vect{v}^M_{B/M}}      % velocity of B wrt M expressed in M
+\newcommand{\qBM}{\hat{\Bar{\mathbf{q}}}^B_{M}}    % quaternion representing B wrt M (unit)
+
+\newcommand{\mrBM}{\vect{m}_{\rBM}^{-}}      % position of B wrt M expressed in M
+
+\newcommand{\mrBMpkm}{\vect{m}_{r,k-1}^+}
+
+% MEKF defs
+\newcommand{\qUnitGeneric}{\hat{\Bar{\mathbf{q}}}} 
+\newcommand{\qRef}{^*\hat{\Bar{\mathbf{q}}}^B_{M}}
+\newcommand{\wBMRef}{^*\vect{\omega}^B_{B/M}}
+\newcommand{\errQuat}{\delta\qUnitGeneric^{B}_{B'}}
+\newcommand{\errQuatInv}{{\delta\qUnitGeneric^{B}_{B'}}^{-1}}
+\newcommand{\errwBM}{\delta\vect{\omega}^B_{B/M}}
+
+% MEKF gryo
+\newcommand{\wBMMeas}{\Tilde{\vect{\omega}}^B_{B/M}}
+\newcommand{\wBias}{\vect{\beta}}
+\newcommand{\wNoise}{\vect{w}_\omega}
+\newcommand{\wBiasNoise}{\vect{w}_\beta}
+\newcommand{\PSDww}{\mat{Q}_\omega\omega}
+\newcommand{\PSDbb}{\mat{Q}_\omega\omega}
+
+\newcommand{\mGyro}{\vect{m}_\omega}
+\newcommand{\mBias}{\vect{m}_\beta}
+
+
+\newcommand{\TBMprime}{\mat{T}_{M_k}^{B'}}
+
+
+
+
+% dynamics variables
+\newcommand{\wMN}{\vect{\omega}^M_{M/N}}   
+\newcommand{\muMoon}{\mu_{Moon}}   
+\newcommand{\rBMnorm}{r^M_{B/M}}  
+\newcommand{\wBM}{\vect{\omega}^B_{B/M}}
+\newcommand{\wGryoOut}{\vect{\omega}^G_{B/N}}
+
+% measurement variables
+\newcommand{\rlO}{\vect{r}^M_{l/M}}
+\newcommand{\rBO}{\vect{r}^M_{B/M_,k}}
+\newcommand{\rlB}{\vect{r}^M_{l/B_,k}}
+\newcommand{\rlBmeas}{\vect{r}^C_{l/C_,k}}
+\newcommand{\TBM}{\mat{T}^B_{M_,k}} 
+\newcommand{\TCB}{\mat{T}^C_{B}} 
+
+%% ^^ above is old code, but has the notation that I use
+
+\newcommand{\pBiB}{\vect{p}^B_{q_{i}/B}}
+\newcommand{\pCiC}{\vect{p}^C_{p_{i}/C}}
+\newcommand{\pBCC}{\vect{p}^C_{B/C}}
+\newcommand{\TBCtoC}{\mat{T}_{B \rightarrow C}} % 4x4 Homogeneous Transformation
+\newcommand{\nCiC}{\vect{n}^C_{p_{i}/C}} % Surface normal vector at target point p_i in C frame
+
+
+%% RSO is point in 3d space
+%% measurement model that 
+
+\newcommand{\TBC}{\mat{T}^B_{C}} 
+\newcommand{\TIB}{\mat{T}^I_{B}} 
+\newcommand{\uRSOcC}{\vect{u}^C_{RSO/C}}
+\newcommand{\uRSOcI}{\vect{u}^I_{RSO/C}}
+
+\begin{document}
+
+\section{3D point cloud matching geometry:}
+
+To transform points on a rigid body frame $B$ to points in a camera frame $C$, we can express the operation using both a 3D affine vector notation and a $4 \times 4$ homogeneous transformation matrix.
+
+\subsection{Transformation in $\mathbb{R}^3$}
+The standard 3D kinematic translation and rotation mapping is given by:
+\begin{equation}
+    \pCiC = \TCB \pBiB + \pBCC
+\end{equation}
+
+\subsection{Homogeneous Transformation in $\mathbb{R}^4$}
+By appending a scaling factor of 1 to our coordinate vectors, the rigid body mapping can be cleanly expressed as a single $4 \times 4$ matrix multiplication:
+\begin{equation}
+    \begin{bmatrix}
+        \pCiC \\
+        1
+    \end{bmatrix}
+    = \TBCtoC
+    \begin{bmatrix}
+        \pBiB \\
+        1
+    \end{bmatrix}
+\end{equation}
+
+Where the homogeneous transformation matrix $\TBCtoC$ is explicitly partitioned as:
+\begin{equation}
+    \TBCtoC = 
+    \begin{bmatrix}
+        \TCB & \pBCC \\
+        \vect{0}_{1\times3} & 1
+    \end{bmatrix}
+\end{equation}
+
+Expanding this reveals the complete linear algebraic formulation:
+\begin{equation}
+    \begin{bmatrix}
+        \pCiC \\
+        1
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        & & &  \\
+        & \TCB & & \pBCC \\
+        & & &  \\
+        &\vect{0}^T & & 1
+    \end{bmatrix}
+    \begin{bmatrix}
+        \pBiB \\
+        1
+    \end{bmatrix}
+\end{equation}
+
+
+\subsection{Point-to-Plane Cost Function}
+The point-to-plane error metric minimizes the squared distance along the surface normal of the target point in the camera frame $C$. 
+
+Let $\pBiB$ represent a source point in the rigid body frame $B$, $\pCiC$ represent its corresponding target point on the surface in the camera frame $C$, and $\nCiC$ be the unit surface normal vector at $\pCiC$.
+
+The objective function seeking the optimal rigid transformation matrix $\TBCtoC$ is formulated as:
+
+\begin{equation}
+    J(\TBCtoC) = \sum_{i} \left[ \left( \pCiC - (\TCB \pBiB + \pBCC) \right) \cdot \nCiC \right]^2
+\end{equation}
+
+
+\begin{equation}
+    J(\TBCtoC) = \sum_{i} \left[ \left( \pCiC - (\TCB \pBiB + \pBCC) \right) \right]^2
+\end{equation}
+
+Expressed compactly in homogeneous coordinates ($\mathbb{R}^4$), let $\tilde{\vect{p}}$ denote the homogeneous vector $[ \vect{p}^T, 1 ]^T$. The cost function is written as:
+
+\begin{equation}
+    E(\TBCtoC) = \sum_{i} \left[ \left( \mathbf{\Pi} \TBCtoC \tilde{\vect{p}}^B_{q_{i}/B} - \pCiC \right)^T \nCiC \right]^2
+\end{equation}
+
+Where $\mathbf{\Pi} = \begin{bmatrix} \mat{I}_{3\times3} & \vect{0}_{3\times1} \end{bmatrix}$ is a projection matrix used to drop the homogeneous scaling factor back down to $\mathbb{R}^3$ for the dot product calculation.
+
+
+\newpage
+\subsection{RSO Direction Transformation Measurement Model}
+The unit line-of-sight vector to the Resident Space Object (RSO) observed in the camera frame $C$, denoted as $\uRSOcC$, can be mapped to the inertial frame $I$ by chaining the rigid body rotation transformations. 
+
+The complete geometric measurement model is written as:
+\begin{equation}
+    \uRSOcI = \TIB \TBC \uRSOcC
+\end{equation}
+
+
+
+\end{document}
