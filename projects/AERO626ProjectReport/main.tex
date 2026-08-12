@@ -1,0 +1,1375 @@
+\documentclass[conf]{new-aiaa}
+% \documentclass[journal]{new-aiaa} for journal papers
+\usepackage[utf8]{inputenc}
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[version=4]{mhchem}
+\usepackage{siunitx}
+\usepackage{longtable,tabularx}
+
+
+\usepackage{amsmath, amssymb, bm}
+
+
+\usepackage{verbatim}
+
+
+
+\usepackage{listings}
+
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{pythonstyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegray},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=4,
+    language=Python
+}
+
+\lstset{style=pythonstyle}
+
+
+\setlength\LTleft{0pt} 
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% HELPFUL MATH DEFINITIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% vectors / matrices
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\mat}[1]{\mathbf{#1}}
+
+% position / velocity / quaternion shorthands
+\newcommand{\rBM}{\vect{r}^M_{B/M}}      % position of B wrt M expressed in M
+\newcommand{\vBM}{\vect{v}^M_{B/M}}      % velocity of B wrt M expressed in M
+\newcommand{\qBM}{\hat{\Bar{\mathbf{q}}}^B_{M}}    % quaternion representing B wrt M (unit)
+
+\newcommand{\mrBM}{\vect{m}_{\rBM}^{-}}      % position of B wrt M expressed in M
+
+\newcommand{\mrBMpkm}{\vect{m}_{r,k-1}^+}
+
+% MEKF defs
+\newcommand{\qUnitGeneric}{\hat{\Bar{\mathbf{q}}}} 
+\newcommand{\qRef}{^*\hat{\Bar{\mathbf{q}}}^B_{M}}
+\newcommand{\wBMRef}{^*\vect{\omega}^B_{B/M}}
+\newcommand{\errQuat}{\delta\qUnitGeneric^{B}_{B'}}
+\newcommand{\errQuatInv}{{\delta\qUnitGeneric^{B}_{B'}}^{-1}}
+\newcommand{\errwBM}{\delta\vect{\omega}^B_{B/M}}
+
+% MEKF gryo
+\newcommand{\wBMMeas}{\Tilde{\vect{\omega}}^B_{B/M}}
+\newcommand{\wBias}{\vect{\beta}}
+\newcommand{\wNoise}{\vect{w}_\omega}
+\newcommand{\wBiasNoise}{\vect{w}_\beta}
+\newcommand{\PSDww}{\mat{Q}_\omega\omega}
+\newcommand{\PSDbb}{\mat{Q}_\omega\omega}
+
+\newcommand{\mGyro}{\vect{m}_\omega}
+\newcommand{\mBias}{\vect{m}_\beta}
+
+
+\newcommand{\TBMprime}{\mat{T}_{M_k}^{B'}}
+
+
+
+
+% dynamics variables
+\newcommand{\wMN}{\vect{\omega}^M_{M/N}}   
+\newcommand{\muMoon}{\mu_{Moon}}   
+\newcommand{\rBMnorm}{r^M_{B/M}}  
+\newcommand{\wBM}{\vect{\omega}^B_{B/M}}
+\newcommand{\wGryoOut}{\vect{\omega}^G_{B/N}}
+
+% measurement variables
+\newcommand{\rlO}{\vect{r}^M_{l/M}}
+\newcommand{\rBO}{\vect{r}^M_{B/M_,k}}
+\newcommand{\rlB}{\vect{r}^M_{l/B_,k}}
+\newcommand{\rlBmeas}{\vect{r}^C_{l/C_,k}}
+\newcommand{\TBM}{\mat{T}^B_{M_,k}} 
+\newcommand{\TCB}{\mat{T}^C_{B}} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Lunar Lander Pose Estimation}
+
+\author{Luke S. Serrano\footnote{Graduate Student, Department of Aerospace Engineering, Bright Building 710 Ross St, College Station, TX 77843}}
+
+\affil{Texas A\&M University Department of Aerospace Engineering, College Station, TX 77843 }
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+In the following report, the problem of using identified lunar landmarks to estimate the pose of a lunar lander before the entry, descent, and landing phase of its mission is addressed. An Extended Kalman Filter and an Extended Gaussian Mixture Filter are formulated to estimate the pose of the spacecraft. The Basilisk simulation software is employed to test and assess the performance of both algorithms. Both filtering approaches achieve satisfactory results, limiting attitude error to within +/- 0.2 degrees and position error to within +/- 20 meters in each axis over a 200 second simulation period. 
+
+
+\end{abstract}
+
+\section{Introduction}
+In the past decade NASA has set forth the goal of establishing human stability on the Earth's Moon. To successfully land a spacecraft on the lunar surface accurate pose estimation is vital because navigation errors propagate into downstream guidance and control algorithms. For Earth relative pose estimation various navigation satellite constellations are crucial for robust and accurate pose estimation. The lack of a lunar navigation satellite constellation has given rise to alternative forms of local navigation. The use of cameras for Optical Navigation (OpNav) has proven to be effective for pose estimation \cite{holt2018orion}, with diverse implementations such as Terrain-Aided Navigation (TRN) and planetary body ellipsoid fitting \cite{christian2021tutorial}.
+
+The Entry, Descent, and Landing (EDL) phase of a mission is of utmost concern since has mission critical consequences for unmanned missions and deadly consequences for manned missions. As humanity faces environments where Earth-based communication will be blacked out during the EDL phase the need to develop robust, precise, and reliable autonomous EDL is needed now more than ever.
+
+Pose estimation in the EDL phase of lunar lander missions can utilize a wide variety of sensors \cite{johnson2008overview} but the recent advancements in computer vision have given rise to reliable, relative and absolute, position and attitude measurements. In \cite{maass2020crater}, the author outlines the development of an entire algorithm designed to reliably detect and match the Moon's craters. Prior maps can then be leveraged to construct absolute position and attitude measurements.
+
+
+In \cite{holt2018orion}, the authors explain the navigation architecture for Exploration Mission 1 of NASA's Orion spacecraft. The navigation architecture includes four Extended Kalman Filters (EKFs) that operate at different mission stages, utilize different sensors, and estimate different parameters. Each of the four EKFs includes an attitude estimate by way of the Multiplicative-Extended Kalman Filter (MEKF), which is further described in \cite{markley2004multiplicative}. While there are many examples of lunar lander Kalman Filtering based approaches \cite{christensen2011terrain}, \cite{givens2023square}, \cite{holt2018orion}, \cite{maass2020crater}, nonlinear filtering for pose estimation methods are less common \cite{cauligi2023shadownav}.
+
+\begin{comment}
+
+The Orion OpNav team's navigation architecture influenced me to create an EKF for my lunar lander's position and velocity states with an MEKF to estimate attitude. The implementation of four separate navigation filters also emphasized that my algorithm can be tailored to a particular stage of a spacecraft's mission.
+
+The author in \cite{christian2021tutorial} details how an image plane coordinate can be projected to a 3-dimensional vector through a projection matrix that uses the fact a set of points lies on the same ray of light. In \cite{maass2020crater}, the authors utilize the the projection matrix and lens distortion model to identify craters on the lunar surface that culminate in a relative position measurement with an associated prior crater map. This TRN landmark based navigation approach inspired my choice to implement a simulated optical landmark identification sensor that produces a relative position measurement into this project.
+
+In \cite{christensen2011terrain}, the author conducts lunar TRN in an EDL scenario and chooses to estimate the lander's pose relative to a Moon-Centered Inertial (MCI) coordinate system. This differs from \cite{maass2020crater}, which estimates the pose of their spacecraft relative to the Moon-Centered Moon-Fixed (MCMF) coordinate system. In my project I have chosen to estimate the MCMF relative pose of the spacecraft due to the fact that it eliminates the landmark's position time dependence that is inherent in an MCI relative position.
+\end{comment}
+
+
+
+\section{Problem Statement}
+
+I am proposing in this project to estimate the position, velocity, and attitude of a lunar lander, in a low lunar orbit before the EDL phase of the mission. An onboard optical sensor suite will identify surface landmark features and be used in conjunction with a prior map containing each landmark's Moon relative position. Both the landmark detection and prior map will culminate in an absolute relative position measurement between the lunar lander and identified landmark feature. An onboard gyroscope will also be utilized to facilitate attitude solution propagation. To address the lunar lander pose estimation problem an Extended Kalman Filter approach is presented in Section \ref{sec:EKFMEKFMeth} and an Extended Gaussian Mixture Filter method in Section \ref{sec:EGMF}.
+
+
+
+\subsection{Coordinate Frames}
+
+Below are useful definitions of coordinate frames which will be used throughout this work:
+
+Moon-Centered Moon-Fixed (MCMF), ($M$): Rotates with Moon, origin at Moon center of mass ($O$)
+
+Moon-Centered Inertial (MCI), ($N$): J2000 Inertial coordinate system, origin at Moon center of mass ($O$)
+
+Body, ($B$): Rotating coordinate system fixed to the spacecraft body, origin at the spacecraft's center of mass
+
+Camera, ($C$): Rotating coordinate system fixed to optical sensor suite on spacecraft, origin at the optical sensor's lens pupil
+
+Gyroscope, ($G$): Rotating coordinate system fixed to onboard gyroscope, origin at the gyroscope center
+
+
+\subsection{State Definition}
+
+Parameter Descriptions:
+
+
+$\rBM(t)$: position of spacecraft body frame ($B$) w.r.t. MCMF ($M$) coordinatized in $M$
+
+
+$\vBM(t)$ = $\frac{d}{dt}^M(\rBM)$: time derivative $\rBM$ as seen from $M$ coordinatized in $M$
+
+
+$\qBM(t)$: vector first quaternion attitude of $B$ w.r.t $M$
+
+\begin{equation}
+\vect{x(t)} =
+\begin{bmatrix}
+\rBM(t) \\[4pt]
+\vBM(t) \\[4pt]
+\qBM(t)
+\end{bmatrix}
+\label{eq:StateDef}
+\end{equation}
+
+
+
+
+
+\subsection{Continuous Dynamics}
+Parameter Descriptions:
+
+$\wMN$: Angular velocity of M w.r.t. N coordinatized in M, which is a known and constant angular velocity
+
+$\wBM$: Angular velocity of B w.r.t. M coordinatized in B, obtained with assistance of gyroscope output, $\wGryoOut$
+
+$\mu_{\mathrm{Moon}}$: Earth's Moon gravitational parameter
+
+$\vect{w(t)}$: Zero-mean continuous white noise
+
+
+
+\vspace{10pt}
+The dynamics have been modeled to be continuous-time and the only modeled external force on the system be a two-body Earth's Moon gravitational force.
+
+
+
+
+
+\begin{equation}
+\dot{\vect{x}}(t) =
+\begin{bmatrix}
+\vBM(t) \\[8pt]
+-\mu_{\mathrm{Moon}} \dfrac{\rBM(t)}{\|\rBM(t)\|^3}
+- 2\,\wMN \times \vBM(t)
+- \wMN \times \!\big( \wMN \times \rBM(t) \big) \\[12pt]
+\tfrac{1}{2}\,\Omega\!\big[\wBM(t)\big]\,\qBM(t)
+\end{bmatrix}
++ \vect{w}(t)
+\label{eq:StateDynamicsModel}
+\end{equation}
+
+
+where,
+
+\begin{equation}
+\Omega[\cdot] =
+\begin{bmatrix}
+[\cdot]_\times & -(\cdot) \\[6pt]
+(\cdot)^\top & 0
+\end{bmatrix}
+\label{eq:BIGOmegaQuatID}
+\end{equation}
+
+\begin{center}
+$[\cdot]_\times$ denotes the cross-product matrix of a vector    
+\end{center}
+
+
+
+
+
+
+\subsection{Discrete Landmark Measurement Update}
+ The landmark measurement that is received from the onboard optical sensor will be the discrete relative position of the landmark ($l$) from the spacecraft camera frame coordinatized in the camera frame received at time $k$, $\rlBmeas$. The position of the landmark from an onboard map is given relative to the Moon's center of mass coordinatized in the $M$ frame, $\rlO$, which is constant. Let the $C$ and $B$ frame origins be co-located to simplify the vector mathematics. 
+
+\vspace{10pt}
+
+Position vectors mathematics:
+
+\begin{equation}
+\rlO = \rBO + \rlB   
+\label{eq:MeasRelPosDef}
+\end{equation}
+
+
+
+Parameter Descriptions:
+
+$\TCB$: Constant Passive Direction Cosine Matrix of Body to Camera frame
+
+$\TBM$: Passive Direction Cosine Matrix of Moon to Body frame, the same rotation as the state $\qBM(t)$ rotation at time $k$
+
+$\vect{\nu}_{k}$: Zero-mean discrete white noise at time $k$
+
+\vspace{10pt}
+
+Measurement model (Assuming co-located $C$ and $B$ frame origins):
+\vspace{10pt}
+
+\begin{equation}
+\rlBmeas = \vect{\Tilde{z}}_{k} = \TCB \TBM (\rlO - \rBO) + \vect{\nu}_{k}
+\label{eq:MeasRelPosModel}
+\end{equation}
+
+
+
+
+\section{Methods}
+\subsection{Kalman Filtering Approach}
+\label{sec:EKFMEKFMeth}
+
+For the Kalman filtering approach, the position and velocity states will be augmented with a multiplicative error quaternion formulation, then the Extended-Kalman Filter (EKF) will be employed with careful handling of the quaternion error states. 
+
+In practice the translational and multiplicative attitude states can be viewed as separate filters, but the choice has been made to augment the two sets of states. This decision was made to take maximum advantage of the build up of knowledge in the cross-correlation of the covariance matrix as the filter accumulates state correlated measurement information. Therefore the explicit translational and attitude augmented state vector is given in Equation \ref{eq:EKF_StateDef}.
+
+\begin{equation}
+\vect{x(t)} =
+\begin{bmatrix}
+\rBM(t) \\[4pt]
+\vBM(t) \\[4pt]
+\vect{\alpha}(t) \\
+\delta\vect{\beta}(t)
+\end{bmatrix}
+\label{eq:EKF_StateDef}
+\end{equation}
+
+
+
+\subsubsection{Multiplicative Error Quaternion Formulation}
+To estimate the quaternion attitude of the lunar lander a Multiplicative-Extended Kalman Filter is employed. The reader is encouraged to seek \cite{crassidis2011optimal} and  \cite{markley2004multiplicative} for similar derivations. To follow are the fundamental definitions, assumptions, and associated equations.
+
+
+Let us start by defining the quaternion attitude parameter as the vector first normalized quaternion parameter with the $\otimes$ operator defining quaternion multiplication.
+
+\begin{equation}
+    \qUnitGeneric =
+    \begin{bmatrix}
+        \vect{q} \\
+        q
+    \end{bmatrix}
+    \label{eqDef:QuatVecFirstDef}
+\end{equation}
+
+It is useful to repeat the quaternion kinematics from Equation \ref{eq:StateDynamicsModel}.
+\begin{equation}
+\frac{d}{dt}(\qBM(t)) = 
+\frac{1}{2}\,\Omega\!\big[\wBM(t)\big]\,\qBM(t)
+=
+\frac{1}{2} \, \boldsymbol{\Xi}(\qBM(t)) \, \wBM(t)
+\label{eq:quat_kinematics}
+\end{equation}
+where,
+
+\begin{equation}
+\boldsymbol{\Xi}(\qUnitGeneric) =
+\begin{bmatrix}
+q \mathbf{I}_{3 \times 3} + [\vect{q}]_\times \\
+- \vect{q}^\top 
+\end{bmatrix}
+=
+\frac{1}{2}
+\begin{bmatrix}
+\vect{\omega} \\ 0
+\end{bmatrix}
+\otimes
+\qUnitGeneric
+\label{eq:xi_matrix}
+\end{equation}
+
+
+
+From here on out the time dependence of the continuous-time attitude quaternion will be implied. The true quaternion rotation between the true MCMF and the body frame, $\qBM$, is the multiplication of the quaternion describing rotation from the reference body frame to the true body frame, $\errQuat$,  and the quaternion describing rotation from the true MCMF frame to the reference body frame, $\qUnitGeneric^{B'}_M$. Here, a choice was made to encapsulate the attitude error in the body frame. The mathematical definition of the error quaternion is found in Equation 
+\ref{eq:errQuatDef} and re-arranged in Equation \ref{eq:errQuatDefV2}.
+
+\begin{equation}
+\qBM = \errQuat \otimes \qUnitGeneric^{B'}_M \\
+\label{eq:errQuatDef}
+\end{equation}
+
+
+\begin{equation}
+ \errQuat = \qBM \otimes {\qUnitGeneric^{B'}_M}^{-1}
+\label{eq:errQuatDefV2}
+\end{equation}
+
+
+To follow we will be deriving a dynamics equation for the error quaternion by taking the time derivative of Equation \ref{eq:errQuatDefV2}. The quaternion dynamics is a function of the corresponding angular velocity vector, so let's be specific about our implementation.
+
+The true attitude, $\qBM$, is propagated with the associated true angular velocity, $\wBM(t)$. The reference attitude, $\qRef = \qUnitGeneric^{B'}_M$, is propagated with the associated reference angular velocity $\wBMRef(t)$.  
+
+The time derivative of Equation \ref{eq:errQuatDefV2} is a simple product rule. An expression for $\errQuatInv$ also needs to be developed by taking the time derivative of the unit norm constraint. After doing both steps we arrive the following equation:
+
+\begin{equation}
+ \frac{d}{dt}({\errQuat}) =
+ \frac{1}{2}{
+ \begin{bmatrix}
+     \wBM(t) \\ 0
+ \end{bmatrix}
+ \otimes 
+ \errQuat
+ -
+ \errQuat \otimes
+  \begin{bmatrix}
+     ^*\wBM(t) \\ 0
+ \end{bmatrix}
+ }
+\label{eq:mekfDir1}
+\end{equation}
+
+where,
+
+\begin{equation}
+    \errwBM(t) = \wBM(t) - ^*\wBM(t)
+    \label{eq:mekfDir_errOmega}
+\end{equation}
+
+
+After applying some useful quaternion multiplication identities we arrive at:
+
+
+\begin{equation}
+ \frac{d}{dt}({\errQuat}) =
+ -
+ \begin{bmatrix}
+     [^*\wBM(t) \times]\delta\vect{q} \\ 0
+ \end{bmatrix}
+ +
+ \frac{1}{2}
+ \begin{bmatrix}
+     \errwBM(t) \\ 0
+ \end{bmatrix}
+ \otimes
+ \errQuat
+\label{eq:mekfDirToLinearize}
+\end{equation}
+
+
+At this point we decide to linearize the nonlinear second term in Equation \ref{eq:mekfDirToLinearize} to first order. This produces linearized kinematics for the vector and scalar portions of the error quaternion.
+
+\begin{equation}
+ \frac{d}{dt}({\vect{q}}) =
+ -
+ [^*\wBM(t) \times]\delta\vect{q} + \frac{1}{2}\errwBM(t)
+\label{eq:mekfVecKin}
+\end{equation}
+
+\begin{equation}
+ \frac{d}{dt}({q}) = 0
+\label{eq:mekfScalarKin}
+\end{equation}
+
+
+Let us observe here that the governing kinematic equation of the scalar portion of the error quaternion is constant. If the true quaternion is remains "close to" the reference quaternion, then the first order approximation holds and $\delta q \approx 1$, preserving the normalization constraint.
+
+
+
+It is at this point that the designer has the option to insert an angular velocity model. The angular velocity is typically obtained from orthogonal gyroscopes that output the average accumulated change in angle over some period of time of the body frame with respect to an inertial frame. To simplify matters let us assume that the gyroscope frame and body frame are aligned and that the gyroscope output handles the constant MCMF from MCI rotation automatically. Thus, the gyroscope measurement is given by $\wBMMeas(t)$, which will later be discretized.
+We choose to model the true angular velocity as the gyroscope measurement with additive white-noise and a white-noise integrating bias.
+
+\begin{equation}
+    \wBM(t) = \wBMMeas(t) - \wBias(t) - \wNoise(t)
+    \label{eq:gyroMeasDef}
+\end{equation}
+
+where,
+
+
+\begin{equation}
+    \frac{d}{dt}(\wBias(t)) = \wBiasNoise(t), E[\frac{d}{dt}(\wBias(t))] = \vect{0}
+    \label{eq:ddtwbias}
+\end{equation}
+
+\begin{equation}
+    E[\wBiasNoise(t)] = 0
+    \label{eq:Ewbias}
+\end{equation}
+
+
+With the angular velocity model defined in Equations \ref{eq:gyroMeasDef} - \ref{eq:Ewbias}, we now choose that the reference angular velocity,$^*\wBM(t)$, used to propagate the error quaternion kinematics in Equation \ref{eq:mekfVecKin} is the expected value of Equation \ref{eq:gyroMeasDef}.
+
+\begin{equation}
+    E[\wBM(t)] = \mGyro(t) = \wBMMeas(t) - \mBias(t)
+\label{eq:meanGryo}
+\end{equation}
+
+Now we substitute Equation \ref{eq:meanGryo} into the angular rate error definition, Equation \ref{eq:mekfDir_errOmega}.
+
+\begin{equation}
+    \errwBM(t) = -\delta \wBias - \wNoise
+    \label{eq:errAngRate}
+\end{equation}
+
+This produces the kinematics of the scalar portion of the error quaternion with our prescribed angular velocity model where $\vect{\alpha} \approx 2\delta q$ and $\frac{d}{dt}(\vect{\alpha}) \approx \delta \dot{q}$. Since our gyroscope measurements are discrete, we will chose to evaluate the mean of the angular velocity at time k, as $\mGyro_{,k} = \wBMMeas_k - \mBias^+_{,k-1}$, when integrating from time step $k-1$ to $k$.
+
+\begin{equation}
+    \frac{d}{dt}(\vect{\alpha}) = -[\mGyro_{,k}\times]\vect{\alpha}-\delta\wBias+\wNoise
+    \label{eq:alphaEom}
+\end{equation}
+
+We have now formulated the linear state space model for the a vector comprised of small rotations between our reference and true body frame and the error in angular rate bias.
+
+\begin{equation}
+\dot{\vect{x}}(t) =
+\begin{bmatrix}
+    \frac{d}{dt}(\vect{\alpha}) \\
+    \frac{d}{dt}(\delta\wBias)
+\end{bmatrix}
+=
+\begin{bmatrix}
+-[\mGyro_{,k}\times] & -I_{3\times3} \\
+0_{3\times3} & 0_{3\times3} 
+\end{bmatrix}
+\vect{x}}(t)
++
+\begin{bmatrix}
+-I_{3\times3} & 0_{3\times3} \\
+0_{3\times3} & I_{3\times3} 
+\end{bmatrix}
+\begin{bmatrix}
+    \wNoise \\
+    \wBiasNoise
+\end{bmatrix}
+\label{eq:mekfStateSpace}
+\end{equation}
+
+
+Now let us direct our attention to the MEKF lunar landmark measurement update. The landmark measurement model in Equation \ref{eq:MeasRelPosModel} is modified with the error state attitude formulation. Let $\TBM = \mat{T}_{B'}^{B}\TBMprime = [I_{3\times3}-[\vect{\alpha\times}]]\TBMprime$ where $\TBMprime$ is the DCM constructed from the current reference quaternion  evaluated at the discrete measurement time, $\qRef_k$. The nonlinear measurement model evaluated at the apriori mean and zero measurement noise is given in Equation \ref{eq:mekfMzk}. The attitude error state measurement model Jacobian evaluated at the current mean state for the attitude states is given in Equation \ref{eq:MeasAttStateJacobianHx}.
+
+\begin{equation}
+\rlBmeas = \vect{\Tilde{z}}_{k} = \TCB [I_{3\times3}-[\vect{\alpha\times}]]\mat{T}_{M}^{B'} (\rlO - \rBM) + \vect{\nu}_{k}
+\label{eq:MeasRelPosModel2}
+\end{equation}
+
+\begin{equation}
+    \vect{m_z}_{k}} = \TCB \TBMprime (\rlO - \mrBM_k)
+    \label{eq:mekfMzk}
+\end{equation}
+
+
+
+
+\begin{equation}
+\mat{H}_x_k =
+\begin{bmatrix}
+\TCB  [[\TBMprime\rlO\times] - [\TBMprime\mrBM_k\times] & 0_{3\times3}
+\end{bmatrix}
+\label{eq:MeasAttStateJacobianHx}
+\end{equation}
+
+
+
+
+The propagation of attitude error and reference states, as well as the transfer of accumulated error in the attitude error states to the reference state due to the measurement update is detailed below:
+
+\begin{table}[h!]
+\centering
+\caption{MEKF Algorithm Steps}
+\label{Table:MEKF Algorithm Steps}
+\begin{tabular}{p{0.05\linewidth} p{0.85\linewidth}}
+\hline
+\textbf{1)} &
+Initialize reference quaternion and angular rate bias: \\
+& $\qRef(t_0), \vect{m}_\wBias(t_0)$
+\\[8pt]
+
+\textbf{2)} &
+Initialize error state and covariance: \\
+& $
+\vect{m}(t_0) =
+\begin{bmatrix}
+    \vect{m_\alpha}(t_0) \\
+    \vect{m}_{\delta\wBias}(t_0)
+\end{bmatrix}
+=
+\begin{bmatrix}
+    \vect{0} \\
+    \vect{0}
+\end{bmatrix}
+, \mat{P_0}
+$
+\\[12pt]
+
+\textbf{3)} &
+Propagate error covariance from k-1 to k via state space model in Equation \ref{eq:mekfStateSpace}: \\
+& $\mat{P^{+}_{k-1}} \rightarrow \mat{P^{-}_{k}}$
+\\[8pt]
+
+\textbf{4)} &
+Propagate reference state from k-1 to k via Equation \ref{eq:quat_kinematics} and Equation \ref{eq:ddtwbias}: \\
+& $
+\qRef^{+}_{k-1} \rightarrow \qRef^{-}_{k}$
+\\
+& $
+\vect{m}_{\wBias}_{k-1}^{+} \rightarrow \vect{m}_{\wBias}_{k}^{-}
+$
+\\[12pt]
+
+\textbf{5)} &
+Update with landmark measurement: \\
+& Accumulated error from Kalman update: $\vect{m}_{\alpha}_k^{+}, \vect{m}_{\delta\wBias}_k^{+}$ \\
+& $\mat{P^{-}_{k}} \rightarrow \mat{P^{+}_{k}}$
+\\[12pt]
+
+\textbf{6)} &
+Transfer error to reference states: \\
+& $
+\qRef^{+}_k = 
+\begin{bmatrix}
+        \vect{m}_{\alpha}_k^{+}/2 \\
+        1
+    \end{bmatrix}
+\otimes
+\qRef^{-}_k
+\rightarrow \qRef^{+}_k = \lVert \qRef^{+}_k \rVert,
+\vect{m_\alpha}_{k-1}^+ = \vect{0}
+$ \\
+& $
+\vect{m}_\wBias_k^+ = \vect{m}_{\delta\wBias}_k^{+} + \vect{m}_\wBias_k^-,
+\vect{m}_{\delta\wBias}_{k-1}^+ = \vect{0}
+$
+\\[12pt]
+
+\textbf{7)} &
+Return to step 3)
+\\
+\hline
+\end{tabular}
+\end{table}
+
+
+\begin{comment}
+    
+
+\begin{centering}
+
+1) Initialize reference quaternion and and angular rate bias: \\
+$\qRef(t_0), \vect{m}_\wBias(t_0)$
+
+2) Initialize error state and covariance: \\
+$
+\vect{m}(t_0) =
+\begin{bmatrix}
+    \vect{m_\alpha}(t_0) \\
+    \vect{m}_{\delta\wBias}(t_0)
+\end{bmatrix}
+=
+\begin{bmatrix}
+    \vect{0} \\
+    \vect{0}
+\end{bmatrix}
+, \mat{P_0}
+$
+
+
+3) Propagate error covariance from k-1 to k via state space model in Equation \ref{eq:mekfStateSpace}: \\
+$\mat{P^{+}_{k-1}} \rightarrow \mat{P^{-}_{k}}$
+
+4) Propagate reference state from k-1 to k via Equation \ref{eq:quat_kinematics} and Equation \ref{eq:ddtwbias}:\\
+$
+\qRef^{+}_{k-1} \rightarrow \qRef^{-}_{k}$
+\\
+$
+\vect{m}_{\wBias}_{k-1}^{+} \rightarrow \vect{m}_{\wBias}_{k}^{-}
+$
+
+5) Update with landmark measurement: \\
+Accumulated error from Kalman update: $\vect{m}_{\alpha}_k^{+}, \vect{m}_{\delta\wBias}_k^{+}$ \\
+$\mat{P^{-}_{k}} \rightarrow \mat{P^{+}_{k}}$
+
+6) Transfer error to reference states:\\
+
+$
+\qRef^{+}_k = 
+\begin{bmatrix}
+        \vect{m}_{\alpha}_k^{+}/2 \\
+        1
+    \end{bmatrix}
+\otimes
+\qRef^{-}_k
+\rightarrow \qRef^{+}_k = \lVert \qRef^{+}_k \rVert,
+\vect{m_\alpha}_{k-1}^+ = \vect{0}
+$
+
+$
+\vect{m}_\wBias_k^+ = \vect{m}_{\delta\wBias}_k^{+} + \vect{m}_\wBias_k^-,
+\vect{m}_{\delta\wBias}_{k-1}^+ = \vect{0}
+$
+
+7) Return to step 3):\\
+
+
+\end{centering}
+\end{comment}
+
+\subsubsection{Translational States}
+To follow the dynamics and measurement model Jacobians will be detailed, which are intended be employed in typical EKF fashion.
+The translational state dynamics from Equation \ref{eq:StateDynamicsModel} are copied below for ease of reference.
+
+\begin{equation}
+\frac{d}{dt}^M
+\begin{bmatrix}
+\rBM(t) \\[6pt]
+\vBM(t)
+\end{bmatrix}
+=
+\begin{bmatrix}
+\vBM(t) \\[6pt]
+-\mu_{\mathrm{Moon}} \dfrac{\rBM(t)}{\|\rBM(t)\|^3}
+- 2\,\wMN \times \vBM(t)
+- \wMN \times \!\big( \wMN \times \rBM(t) \big)
+\end{bmatrix}
++ \vect{w}(t)
+\label{eq:trans_dynamics}
+\end{equation}
+
+
+
+The position and velocity dynamics are linearized by way of a first order Taylor-Series expansion about the position and velocity mean and zero process noise. The coupled position and velocity mean and covariance dynamics are are propagated jointly with SciPy's ODE45 numerical integrator between measurements. The translational state Jacabian matrix is detailed below:
+
+\begin{equation}
+\mat{F}_x(t) =
+\begin{bmatrix}
+\vect{0}_{3\times3} & \mat{I}_{3\times3} \\[8pt]
+-\mu_{\mathrm{Moon}}
+\!\left(
+\dfrac{\mat{I}_{3}}{\|\rBM\|^{3}}
+- 3\,\dfrac{\rBM\rBM^{\mathrm{T}}}{\|\rBM\|^{5}}
+\right) - [\wMN\times][\wMN\times]
+& -2\,\left[\wMN\times\right]
+\end{bmatrix}
+\label{eq:StateJacobianFx}
+\end{equation}
+
+ 
+Similarly the nonlinear measurement model, found in Equation \ref{eq:MeasRelPosModel}, is linearized by way of a first order Taylor-Series expansion about current state mean and zero measurement noise. The expectation of the non linear measurement model was previously stated in Equation \ref{eq:mekfMzk}.  The traslational state measurement model Jacobian is evaluated at the current mean state is detailed below:
+
+\begin{equation}
+\mat{H}_x_k =
+\begin{bmatrix}
+-\TCB\TBM &\vect{0}_{3\times3}
+\end{bmatrix}
+\label{eq:MeasTransStateJacobianHx}
+\end{equation}
+where,
+$\TBM$ is the passive DCM equivalent to the current reference quaternion, $\qRef_k$.
+
+
+
+
+
+
+
+
+
+\subsection{Extended Gaussian Mixture Filter}
+\label{sec:EGMF}
+
+The nonlinear filtering technique chose to estimate the pose of the lunar lander is the Extended Gaussian Mixture Filter (EGMF). This technique was chosen primarily to take advantage of the linearized multiplicative error quaternion attitude formulation from Section \ref{sec:EKFMEKFMeth}. The nonlinear state-space and probabilistic models of the EGMF are provided in Equation \ref{eq:egmf_state_space_model} and \ref{eq:egmf_prob_state_space_model}, where subscript $g$ denotes a Gaussian probability density function (PDF).
+
+\begin{equation}
+\begin{aligned}
+\vect{x}_k &= f\!\left( \vect{x}_{k-1} \right) + \vect{w}_{k-1}, \\[6pt]
+\vect{z}_k &= h\!\left( \vect{x}_{k} \right) + \vect{v}_{k}.
+\end{aligned}
+\label{eq:egmf_state_space_model}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+p\!\left( \vect{x}_k \mid \vect{x}_{k-1} \right)
+    &= p_g\!\left( \vect{x}_k;\; f(\vect{x}_{k-1}),\; \mat{P}_{ww,k-1} \right), \\[8pt]
+p\!\left( \vect{z}_k \mid \vect{x}_{k} \right)
+    &= p_g\!\left( \vect{z}_k;\; h(\vect{x}_{k}),\; \mat{P}_{vv,k} \right).
+\end{aligned}
+\label{eq:egmf_prob_state_space_model}
+\end{equation}
+
+
+The traditional EGMF propagation approach is employed, with the nonlinear dynamics and measurement models linearized to first-order about each PDF's mean. This results in each Gaussian PDF's mean and covariance propagation and update mirroring the traditional EKF propagation and update equations. It is important to note that although each Gaussian PDF's mean and covariance propagation and update mirror the EKF, the EKF and EGMF algorithms are fundamentally different. The EGMF propagates and updates a Gaussian mixture model (GMM), from a probabilistic lens, unbound by the linear restriction of the Kalman Filter, to provide a best estimate solution.
+
+The discrete dynamics model differs from the the continuous state-space formulation in Equation \ref{eq:StateDynamicsModel}. To discretize the continuous dynamics the nonlinear function $f(\vect{x}_{k-1})$ is viewed as the numerical integration of the continuous dynamics from time $k-1$ to $k$, resulting in a propagated state solution, $\vect{x}_{k}$.
+
+The translational and multiplicative attitude state dynamics Jacobian's from Equation \ref{eq:StateJacobianFx} and \ref{eq:mekfStateSpace} facilitate the propagation of each Gaussian PDF in the EGMF. Note that the multiplicative attitude state noise mapping matrix is now chosen to be the appropriately sized identity matrix. The handling of multiplicative attitude error and reference states are handled carefully for each Gaussian PDF, following the logic outline in Table \ref{Table:MEKF Algorithm Steps}.
+
+The best estimate solution for the lunar lander position, velocity, and gyroscope bias is chosen to be the mean of the GMM. The best estimate solution for the lunar lander attitude is chosen to be the reference attitude state of the Gaussian PDF with the highest weight at any given point in time. The certainty in the EGMF best estimate is taken to be the covariance of the GMM.
+
+
+
+\section{Analysis and Discussion}
+\subsection{Simulation Environment and Configuration}
+To test the prospective lunar lander pose estimation algorithms the Basilisk \cite{kenneally2020basilisk} simulation software was leveraged to generate true position, velocity, and attitude of the spacecraft body frame with respect to the MCI frame. 
+
+The simulation translational dynamics was configured to calculate force acting on the spacecraft to be the summation of the Newtonian two-body gravity force of the moon acting on the spacecraft and the Newtonian two-body gravity force of the Earth acting on the spacecraft. This net force is then integrated into the spacecraft velocity and position via Newton's second law. The spacecraft attitude solution is calculated via Euler's rotational equations of motion, providing a body frame with respect to MCI frame attitude solution. The initial spacecraft's orbit is given by the moon central body Keplerian orbital elements and displayed in Table \ref{tab:init_orbital_elements}.
+\begin{table}[h!]
+\centering
+\begin{tabular}{l c}
+\hline
+\textbf{Orbital Element} & \textbf{Value} \\
+\hline
+Semi-major axis $a$ & $r_{\text{Lunar Equatorial Radius}} + 2{,}000 \; \text{m}$ \\
+Eccentricity $e$ & $0.00001$ \\
+Inclination $i$ & $30^\circ$ \\
+RAAN $\Omega$ & $30^\circ$ \\
+Argument of Perigee $\omega$ & $0^\circ$ \\
+True Anomaly $\nu$ & $0^\circ$ \\
+\hline
+\end{tabular}
+\caption{Initial Orbital Elements}
+\label{tab:init_orbital_elements}
+\end{table}
+
+The simulated spacecraft mass properties are:
+\[
+\mathbf{I} = 
+\begin{bmatrix}
+900.0 & 0.0 & 0.0 \\
+0.0 & 800.0 & 0.0 \\
+0.0 & 0.0 & 600.0
+\end{bmatrix}
+\; \text{kg} \cdot \text{m}^2,
+\quad
+\text{m} = 750.0 \; \text{kg}
+\]
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=.5\linewidth]{pics/spacecraft.png}
+    \caption{Basilisk Spacecraft Visualization}
+    \label{Basilisk Spacecraft Visualization}
+\end{figure}
+The MCI referenced truth must be further processed to obtain MCMF referenced truth data. First the MCMF with respect to MCI attitude solution was propagated over the simulation time, using $\wMN=[0, 0 ,27.322]^T \text{days/revolution}$. This true MCMF with respect to MCI attitude trajectory was then used to compute a true position, velocity, and attitude of the spacecraft body frame with respect to the MCMF frame, namely $\rBM$, $\vBM$, and $\qBM$ trajectories.
+   
+
+\subsection{Measurement Generation}
+The gyroscope data was generated by Basilisk with the First-Order Gauss-Markov process defined by the noise parameters in Table \ref{tab:gyro_noise_params}, which were inspired from \cite{crassidis2011optimal}. The true gyroscope bias for is taken to be a constant 0.1 deg/hr in each gyroscope axis across the entire simulation.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l c c}
+\hline
+\textbf{Parameter} & \textbf{Value} & \textbf{Units} \\
+\hline
+Angular velocity white-noise standard deviation 
+& $\sqrt{10}\cdot10^{-7}$ 
+& $\mathrm{rad/s^{1/2}}$ \\
+Angular velocity integrating bias white-noise standard deviation 
+& $\sqrt{10}\cdot10^{-10}$ 
+& $\mathrm{rad/s^{3/2}}$ \\
+\hline
+\end{tabular}
+\caption{Gyroscope Noise Parameters}
+\label{tab:gyro_noise_params}
+\end{table}
+
+
+
+
+The landmark positions were generated by the model in Equation \ref{eq:MeasRelPosModel} and determined as visible to the optical sensor suite if the true relative position magnitude was less than the 100 km, that is $|\rlB| \leq 100$ km. From this set a maximum of three landmarks were chosen and fed to the estimation algorithms at 1 Hz.
+Initially additive white noise was being applied in the body frame, but it was soon realized that applying noise in the body frame is non-realistic. The body frame relative position vector should be intuitively less certain about the depth direction. For our application this roughly means that the relative position vector provides more accurate information in the directions orthogonal to the local lunar surface and therefore more accurate attitude information about the two axes that span the plane tangent to the local lunar surface.
+
+To achieve this end, a local North, East, Down frame is the proper candidate to inject measurement noise but for simplicity the Local Vertical Local Horizontal (LVLH) frame was used. The logic measurement noise logic is taken to be, LVLH frame relative position white-noise standard deviation $(\sigma_{\mathrm{v}_k}) = [\text{alt./100, alt./200, alt./200}]^T$ [\text{km]}.
+
+
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=.6\linewidth]{pics/MCMF_landmarks.png}
+    \caption{MCMF True Landmarks}
+    \label{MCMF True Landmarks}
+\end{figure}
+
+\newpage
+\subsubsection{EKF Initialization}
+
+The EKF initial noise parameters are tabulate in Table \ref{tab:EKF_init_sigmas_psd}. The initial mean was calculated as truth plus additive Gaussian noise adhering to the initial covariance in Table \ref{tab:EKF_init_sigmas_psd}. It is important to note that the multiplicative attitude state error, attitude and gyroscope bias error, are accumulated in the initialization process. This error was transferred to the reference states per Table \ref{Table:MEKF Algorithm Steps} before the simulation began.
+
+\begin{table}[h!]
+\centering
+\caption{Initial Covariance and Power Spectral Density for Continuous–Discrete EKF}
+\label{tab:EKF_init_sigmas_psd}
+\begin{tabular}{l c c c c}
+\hline
+\textbf{State} & \textbf{Initial std.\ dev.} & \textbf{Initial cov.} & \textbf{PSD} & \textbf{Discrete process noise} \\
+\hline
+Position & $\sigma_{r}$ = 1.0 (km) & $\mat{P}_{r,0} = \sigma_{r}^{2}\mat{I}_3$ &  $\gamma_{r} = 1 \cdot10^{-4}$ (km/Hz) & $\mat{Q}_{r}(t) \;=\; \gamma_{r}\mat{I}_3$ \\[6pt]
+
+Velocity & $\sigma_{v}$ = 0.1 (km/s) & $\mat{P}_{v,0} = \sigma_{v}^{2}\mat{I}_3$ &  $\gamma_{v} = 1 \cdot10^{-3}$ (km/s$\cdot$Hz) & $\mat{Q}_{v}(t) \;=\; \gamma_{v}\mat{I}_3$ \\[6pt]
+
+Attitude Error  & $\sigma_{\alpha}$ = 0.1 (deg) & $\mat{P}_{\alpha,0} = \sigma_{\alpha}^{2}\mat{I}_3$ & $\sigma_{v} = \sqrt{10}\ \cdot10^{-9}$ (rad/s$^{1/2}$) & $\mat{Q}_{\alpha}(t) \;=\; \sigma_{v}^{2}\mat{I}_3$ \\[6pt]
+
+Gyroscope Bias Error & $\sigma_{\delta\beta}$ = 0.2 (deg/Hr) & $\mat{P}_{\delta\beta,0} = \sigma_{v}^{2}\mat{I}_3$ & $\sigma_{u} = \sqrt{10}\ \cdot10^{-12}$ (rad/s$^{3/2}$) & $\mat{Q}_{\delta\beta}(t) \;=\; \sigma_{u}^{2}\mat{I}_3$ \\
+\hline
+\end{tabular}
+\end{table}
+
+
+\subsubsection{EGMF Initialization}
+In the all of the simulations presented the number of Gaussian PDF's in the GMM was chosen to be, $L_x = 9$. To create the initial GMM, the EKF mean and covariance was used as a reference Gaussian PDF. Individual GMM Gaussian PDF's were then defined such that the means evenly spanned the reference Gaussian's +/- 3 $\sigma$ interval. The individual GMM Gaussian PDF's covariance were set to be identical to that of the reference gaussian. The initial weight calculation of each Gaussian in the GMM was taken to be the reference Gaussian evaluated at the mean of the $l^{th}$ Gaussian PDF in the mixture, $p_g( \vect{m}_{x,l};\; \vect{m}_{x,{\text{ref}}},\; \mat{P}_{xx,\text{ref}} )$. The additive white process noise is tabulated in Table \ref{tab:EGMF_init_sigmas_psd}.
+
+\begin{table}[h!]
+\centering
+\caption{Process Noise For The Discrete EGMF}
+\label{tab:EGMF_init_sigmas_psd}
+\begin{tabular}{l c c c c}
+\hline
+\textbf{State} & \textbf{Initial std.\ dev.} & \textbf{Initial cov.}  \\
+\hline
+Position & $\sigma_{r} = 1 \cdot10^{-3}$ (km) & $\mat{P}_{ww,r_k} = \sigma_{r}^{2}\mat{I}_3$ \\
+
+Velocity & $\sigma_{v} = 1 \cdot10^{-3}$ (km/s) & $\mat{P}_{ww,v_k} = \sigma_{v}^{2}\mat{I}_3$  \\[6pt]
+
+Attitude Error  & $\sigma_{\alpha} = \sqrt{10}\ \cdot10^{-9}$ (deg) & $\mat{P}_{ww,\alpha_k} = \sigma_{\alpha}^{2}\mat{I}_3$   \\[6pt]
+
+Gyroscope Bias Error & $\sigma_{\delta\beta} = \sqrt{10}\ \cdot10^{-12}$ (deg/Hr) & $\mat{P}_{ww,\delta\beta_k} = \sigma_{\delta\beta}^{2}\mat{I}_3$  \\
+\hline
+\end{tabular}
+\end{table}
+
+This is process is visually displayed for the MCMF x-axis position and velocity Figures \ref{plot_GMM:r} and \ref{plot_GMM:v}. The GMM along the first axis for attitude error and gyroscope bias error states are shown in Figures \ref{plot_GMM:alpha} and \ref{plot_GMM:beta} and are equivalent to the reference Gaussian because the error was transferred to the reference states per Table \ref{Table:MEKF Algorithm Steps}. These figures can be found in Appendix \ref{Appendix:B}.
+
+
+\subsection{Simulation Results: EKF vs EGMF Comparison}
+\subsubsection{Scenario 1: Passive Tumble}
+\label{sec:Scenario1}
+The first simulation scenario depicts a passive attitude controlled lunar lander tumbling, given the initial angular velocity to be $\vect{\omega}^B_{B/N} = [5.0, 2.0, 1.0]^T$ deg/s. The gyroscope unbiased simulated trajectory is shown in Figure \ref{plot_EKF_S1:Gyro}.
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=0.8\linewidth]{plots/NoCtrlrScen/GryoOutput_NoCtlr.png}
+    \caption{Scenario 1: Unbiased Gyroscope Sensor Frame Output Trajectory}
+    \label{plot_EKF_S1:Gyro}
+\end{figure}
+
+
+
+The traditional state error and three sigma confidence interval plots for the EKF and EGMF are displayed in Figures \ref{plot_EKF_S1_err:Trans} through \ref{plot_EKF_S1_err:Bias} and Figures \ref{plot_EGMF_S1_err:Trans} through \ref{plot_EGMF_S1_err:Bias}, respectively. In Figures \ref{plot_EKF_S1_err:Landmarks} and \ref{plot_EKF_S1_err:Landmarks_zoom}, the EKF landmark measurement innovations and associated identified landmark trajectory are displayed.
+
+Taking a closer look at the measurement noise covariance in Figure \ref{plot_EKF_S1_err:Landmarks_zoom}, the +/- 3 $\sigma$ noise value in each axis ranges from 40-60 meters. Although, the measurement is a relative position, our position estimation error should remain below this range. Taking a look at Figures \ref{plot_EKF_S1_err:Trans_zoom} and \ref{plot_EGMF_S1_err:Trans_zoom}, both filters hover around +/- 20 meters of position error throughout the simulation. This positional error result is satisfactory and at an altitude of 2 kilometers. 
+
+
+Let's look at the identified landmark trajectory in Figures \ref{plot_EKF_S1_err:Landmarks} and \ref{plot_EKF_S1_err:Landmarks_zoom} and make observations regarding how landmark information is helps correct our states. In Figures \ref{plot_EKF_S1_err:Trans}, \ref{plot_EKF_S1_err:Trans_zoom}, \ref{plot_EGMF_S1_err:Trans} and \ref{plot_EGMF_S1_err:Trans_zoom}, the translational states are equally observable over all landmark measurements and are therefore continuously corrected. In Figures \ref{plot_EKF_S1_err:Att}, \ref{plot_EKF_S1_err:Bias}, \ref{plot_EGMF_S1_err:Att} and \ref{plot_EGMF_S1_err:Bias}, the multiplicative attitude states are not equally observable over all landmark measurements. Rather they are more observable when a new landmark is observed. This is to say that a larger magnitude of state correction and decreased covariance occurs at epochs that previously unobserved landmarks are initially observed.
+
+
+The asymmetry of rigid body mass distribution creates coning about each body axis, shown in Figure \ref{plot_EKF_S1:Gyro}, which is a particular stressor of of the multiplicative attitude states. This result points us to implement some type of attitude controller to assist the multiplicative attitude state estimate. A simulation scenario with active attitude control is shown in Section \ref{sec:Scenario2}.
+
+
+
+A statistical comparison of the EKF and EGMF using the root mean squared error (RMSE) and mean average error (MAE) of the posteriori state estimates is tabulated in Table \ref{tab:S1_ekf_egmf_stats}. The EKF has lower RMSE and MAE metrics compared to the EGMF for all states. This could be due to the fact that only $L_x=9$ Gaussian PDF's were include in the EGMF. Although the EKF has lower RMSE and MAE metrics for the multiplicative attitude states, in Figures \ref{plot_EKF_S1_err:Att}, \ref{plot_EKF_S1_err:Bias}, \ref{plot_EGMF_S1_err:Att} and \ref{plot_EGMF_S1_err:Bias}, it is clear that the EGMF does a better job of keeping the estimation error within its +/- 3 sigma confidence interval.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{lcc}
+\hline
+\textbf{Metric} & \textbf{EKF} & \textbf{EGMF} \\
+\hline
+Number of Samples & 199 & 199 \\
+\hline
+\multicolumn{3}{l}{\textbf{Position Error (m)}} \\
+RMSE & 20.439168 & 24.044475 \\
+MAE  & 14.424910 & 16.719456 \\
+\hline
+\multicolumn{3}{l}{\textbf{Velocity Error (m/s)}} \\
+RMSE & 17.710632 & 17.811217 \\
+MAE  & 3.488546  & 3.969272 \\
+\hline
+\multicolumn{3}{l}{\textbf{Attitude Error (deg)}} \\
+RMSE & 0.027791 & 0.031714 \\
+MAE  & 0.018902 & 0.021329 \\
+\hline
+\multicolumn{3}{l}{\textbf{Gyro Bias Error (deg/hr)}} \\
+RMSE & 15.917194 & 16.530850 \\
+MAE  & 14.721909 & 15.280866 \\
+\hline
+\end{tabular}
+\caption{Scenario 1: Posteriori State Error Statistics Comparison: EKF vs. EGMF}
+\label{tab:S1_ekf_egmf_stats}
+\end{table}
+
+
+
+
+
+
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/NoCtrlrScen/EKF Landmark_Innovations_LVLH_Frame.png}
+    \caption{Scenario 1: EKF LVLH Frame Landmark Innovations and Landmark ID Trajectory}
+    \label{plot_EKF_S1_err:Landmarks}
+\end{figure}
+
+
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/NoCtrlrScen/zoom/EKF Landmark_Innovations_LVLH_Frame.png}
+    \caption{Scenario 1: EKF LVLH Frame Landmark Innovations and Landmark ID Trajectory Zoomed}
+    \label{plot_EKF_S1_err:Landmarks_zoom}
+\end{figure}
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/NoCtrlrScen/EKF_MCMF_Frame_Translational_Estimation_Error.png}
+    \caption{Scenario 1: EKF MCMF Frame Translational State Error}
+    \label{plot_EKF_S1_err:Trans}
+\end{figure}
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/NoCtrlrScen/zoom/EKF_MCMF_Frame_Translational_Estimation_Error.png}
+    \caption{Scenario 1: EKF MCMF Frame Translational State Error Zoomed}
+    \label{plot_EKF_S1_err:Trans_zoom}
+\end{figure}
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/NoCtrlrScen/EKF_Frame_Body_w.r.t._MCMF_Estimation_Error.png}
+    \caption{Scenario 1: EKF Body Frame Attitude State Error}
+    \label{plot_EKF_S1_err:Att}
+\end{figure}
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/NoCtrlrScen/EKF_EKF_Gryo_Bias_Error.png}
+    \caption{Scenario 1: EKF Gyroscope Bias State Error}
+    \label{plot_EKF_S1_err:Bias}
+\end{figure}
+
+
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/NoCtrlrScen/EGMF_MCMF_Frame_Translational_Estimation_Error.png}
+    \caption{Scenario 1: EGMF MCMF Frame Translational State Error}
+    \label{plot_EGMF_S1_err:Trans}
+\end{figure}
+
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/NoCtrlrScen/zoom/EGMF_MCMF_Frame_Translational_Estimation_Error.png}
+    \caption{Scenario 1: EGMF MCMF Frame Translational State Error Zoomed}
+    \label{plot_EGMF_S1_err:Trans_zoom}
+\end{figure}
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/NoCtrlrScen/EGMF_Frame_Body_w.r.t._MCMF_Estimation_Error.png}
+    \caption{Scenario 1: EGMF Body Frame Attitude State Error}
+    \label{plot_EGMF_S1_err:Att}
+\end{figure}
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/NoCtrlrScen/EGMF_EGMF_Gryo_Bias_Error.png}
+    \caption{Scenario 1: EGMF Gyroscope Bias State Error}
+    \label{plot_EGMF_S1_err:Bias}
+\end{figure}
+
+
+
+
+
+\newpage
+\subsubsection{Scenario 2: Active Attitude Controller}
+\label{sec:Scenario2}
+For this scenario, the lunar lander's initial angular velocity was increased to $\vect{\omega}^B_{B/N} = [5.0, 20.0, 1.0]^T$ deg/s. The gyroscope unbiased simulated trajectory is shown in Figure \ref{plot_EKF_S2:Gyro}. A Modified Rodrigues Parameter proportional-derivative attitude controller was implemented to stabilize the lunar lander, with gains $K_P=3.5, K_d=30.0$.
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=.8\linewidth]{plots/ControllerScen/GryoOutput_Ctlr.png}
+    \caption{Scenario 2: Unbiased Gyroscope Sensor Frame Output Trajectory}
+    \label{plot_EKF_S2:Gyro}
+\end{figure}
+
+
+The traditional state error and three sigma confidence interval plots for the EKF and EGMF are displayed in Figures \ref{plot_EKF_S2_err:Trans} through \ref{plot_EKF_S2_err:Bias} and Figures \ref{plot_EGMF_S2_err:Trans} through \ref{plot_EGMF_S2_err:Bias}, respectively. The EKF landmark measurement innovations and associated identified landmark trajectory are displayed in Figures \ref{plot_EKF_S2_err:Landmarks} and \ref{plot_EKF_S2_err:Landmarks_zoom}.
+
+
+Similar the scenario 1, the +/- 3 $\sigma$ noise value in each axis ranges from 40-60 meters. Taking a look at Figures \ref{plot_EKF_S2_err:Trans_zoom} and \ref{plot_EGMF_S2_err:Trans_zoom}, both filters hover around +/- 20 meters of position error throughout the simulation. This positional error result is satisfactory and at an altitude of 2 kilometers. 
+
+
+A statistical comparison of the EKF and EGMF posteriori state estimates is tabulated in Table \ref{tab:S2_egmf_ekf_stats_200s}. The EGMF has lower RMSE and MAE metrics compared to the EKF for all states except for the gyroscope bias estimate. Similarly to Section \ref{sec:Scenario1}, for the multiplicative attitude states the EGMF does a better job of keeping the estimation error within its +/- 3 sigma confidence interval.
+
+\newpage
+\begin{table}[thbp]
+\centering
+\begin{tabular}{lcc}
+\hline
+\textbf{Metric} & \textbf{EKF} & \textbf{EGMF} \\
+\hline
+Number of Samples & 199 & 199 \\
+\hline
+\multicolumn{3}{l}{\textbf{Position Error (m)}} \\
+RMSE & 31.563984 & 25.167798 \\
+MAE  & 21.142934 & 19.011863 \\
+\hline
+\multicolumn{3}{l}{\textbf{Velocity Error (m/s)}} \\
+RMSE & 19.746426 & 18.404141 \\
+MAE  & 5.536428  & 4.894668 \\
+\hline
+\multicolumn{3}{l}{\textbf{Attitude Error (deg)}} \\
+RMSE & 0.046271 & 0.033282 \\
+MAE  & 0.027189 & 0.023743 \\
+\hline
+\multicolumn{3}{l}{\textbf{Gyro Bias Error (deg/hr)}} \\
+RMSE & 48.049658 & 49.269159 \\
+MAE  & 36.082960 & 37.149063 \\
+\hline
+\end{tabular}
+\caption{Scenario 2: Posteriori State Error Statistics Comparison: EKF vs. EGMF}
+\label{tab:S2_egmf_ekf_stats_200s}
+\end{table}
+
+
+Similar results are taken from the second scenario when looking at the identified landmark trajectory in Figure \ref{plot_EKF_S2_err:Landmarks} and observing how the landmark information helps correct our states. For both the EKF and EGMF, the translational states are equally observable over all landmark measurements and are therefore continuously corrected. For both the EKF and EGMF, the multiplicative attitude states are not equally observable over all landmark measurements, but are more observable when a new landmark is observed. 
+
+Taking a look at the gyroscope angular velocity trajectory in Figure \ref{plot_EKF_S2:Gyro}, notice that around the 200 second epoch the angular velocity is beginning to settle to zero. At this time the multiplicative attitude states also begin to obtain better estimates. This was indeed not the case in scenario 1 even though the identified landmark trajectories are identical.
+
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/ControllerScen/EKF Landmark_Innovations_LVLH_Frame.png}
+    \caption{Scenario 2: EKF LVLH Frame Landmark Innovations and Landmark ID Trajectory}
+    \label{plot_EKF_S2_err:Landmarks}
+\end{figure}
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/ControllerScen/zoom/EKF Landmark_Innovations_LVLH_Frame.png}
+    \caption{Scenario 2: EKF LVLH Frame Landmark Innovations and Landmark ID Trajectory Zoomed}
+    \label{plot_EKF_S2_err:Landmarks_zoom}
+\end{figure}
+
+
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/ControllerScen/EKF_MCMF_Frame_Translational_Estimation_Error.png}
+    \caption{Scenario 2: EKF MCMF Frame Translational State Error}
+    \label{plot_EKF_S2_err:Trans}
+\end{figure}
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/ControllerScen/zoom/EKF_MCMF_Frame_Translational_Estimation_Error.png}
+    \caption{Scenario 2: EKF MCMF Frame Translational State Error Zoomed}
+    \label{plot_EKF_S2_err:Trans_zoom}
+\end{figure}
+
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/ControllerScen/EKF_Frame_Body_w.r.t._MCMF_Estimation_Error.png}
+    \caption{Scenario 2: EKF Body Frame Attitude State Error}
+    \label{plot_EKF_S2_err:Att}
+\end{figure}
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/ControllerScen/EKF_EKF_Gryo_Bias_Error.png}
+    \caption{Scenario 2: EKF Gyroscope Bias State Error}
+    \label{plot_EKF_S2_err:Bias}
+\end{figure}
+
+
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/ControllerScen/EGMF_MCMF_Frame_Translational_Estimation_Error.png}
+    \caption{Scenario 2: EGMF MCMF Frame Translational State Error}
+    \label{plot_EGMF_S2_err:Trans}
+\end{figure}
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/ControllerScen/zoom/EGMF_MCMF_Frame_Translational_Estimation_Error.png}
+    \caption{Scenario 2: EGMF MCMF Frame Translational State Error Zoomed}
+    \label{plot_EGMF_S2_err:Trans_zoom}
+\end{figure}
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/ControllerScen/EGMF_Frame_Body_w.r.t._MCMF_Estimation_Error.png}
+    \caption{Scenario 2: EGMF Body Frame Attitude State Error}
+    \label{plot_EGMF_S2_err:Att}
+\end{figure}
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/ControllerScen/EGMF_EGMF_Gryo_Bias_Error.png}
+    \caption{Scenario 2: EGMF Gyroscope Bias State Error}
+    \label{plot_EGMF_S2_err:Bias}
+\end{figure}
+
+
+
+
+
+
+\newpage
+When looking at Figures \ref{plot_EKF_S2_err:Bias} and \ref{plot_EGMF_S2_err:Bias}, it is not east to discern whether or not the EKF algorithm is able to correctly utilize the lunar landmark position measurements to estimate the gyroscope bias correctly. In \cite{crassidis2011optimal}, the author is able to accurately estimate gyroscope bias after about 30 minutes of incorporating star tracker measurements. In \cite{maley2013multiplicative}, the author is able to accurately estimate the gyroscope bias in about 20 seconds using direct Euler angle measurements. This disparity in time to accurately estimate gyroscope bias is intriguing.
+
+In Figure \ref{plot_EGMF_S2_err_one_orbit:Bias}, the gyroscope bias error trajectory is plotted for 1 Keplarian orbital period and shows the EKF's inability to accurately estimate gyroscope bias. Running more measurements through the filter has low influence on the filters ability to accurately estimate gyroscope bias. In Figure \ref{plot_EGMF_S2_err_one_orbit_true_meas:Bias}, the gyroscope bias error trajectory is again plotted for 1 Keplarian orbital period but this time with true measurements. The EKF is indeed able to accurately estimate gyroscope bias in about 15 minutes. Therefore, the ability to accurately estimate gyroscope bias is more correlated to the accuracy of landmark position vectors opposed to the amount of landmark relative position information processed.
+
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/ControllerScen/oneOrbit/EKF_EKF_Gryo_Bias_Error.png}
+    \caption{Scenario 2: One Orbital Period EKF Gyroscope Bias State Error}
+    \label{plot_EGMF_S2_err_one_orbit:Bias}
+\end{figure}
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{plots/ControllerScen/oneOrbit/EKF_EKF_Gryo_Bias_Error_TrueMeas.png}
+    \caption{Scenario 2: One Orbital Period True Measurements EKF Gyroscope Bias State Error}
+    \label{plot_EGMF_S2_err_one_orbit_true_meas:Bias}
+\end{figure}
+
+
+
+
+
+
+
+
+
+\newpage
+\section{Conclusion}
+In conclusion, an EKF and EGMF algorithms were formulated to implement lunar landmark relative position and gyroscope measurements to estimate a lunar lander's pose. A simulation environment was built using the Basilisk simulation software, where both algorithms proved to yield satisfactory lunar lander pose estimates.
+
+When analyzing how each filter utilized the lunar landmark relative position measurements to correct the translation and multiplicative attitude states. For both algorithms, the translational states are equally observable over all landmark measurements and are therefore continuously corrected. For the multiplicative attitude states, both filters implement a larger magnitude of state correction and decreased covariance at epochs that previously unobserved landmarks are initially observed.
+
+An initial scenario of a constant angular rate with no attitude control proved to be a challenging scenario for the attitude and gyroscope bias states in both the EKF and EGMF. This lead to a second scenario with active attitude control to stabilize the lunar lander. Both the EKF and EGMF were able to reduce attitude and gyroscope bias estimation error when the angular velocity settled. 
+
+The discrepancy in time to accurately estimate gyroscope bias across literature was surprisingly large. To investigate this phenomenon a single orbital period simulation was ran with noisy and true measurements. The EKF was only able to estimate the true gyroscope bias when using true measurements. It was then concluded that the ability to accurately estimate gyroscope bias is more correlated with measurement accuracy than amount of measurement information.
+
+
+\section{Future Work}
+In the work presented, computational time was not taken into consideration when comparing the EKF and EGMF. Along similar lines, the number of Gaussian PDF's in the GMM was fixed to $L_x = 9$. In a scenario that the lunar lander is approaching candidate landing location, computational time and accuracy are both important metrics. Therefore, a computational time vs GMM scale analysis should be conducted in the future in an attempt to compare and optimize the two conflicting priorities.
+
+The optical sensor which output identified landmark relative position was implemented in an oversimplified model. The optical sensor model could increase in fidelity by creating a simulation environment that follows trajectories corresponding to open source lunar lander surface images. An image processing algorithm should then be operating in-the-loop to further increase simulation fidelity. 
+
+
+\begin{thebibliography}{99}
+\bibitem{cauligi2023shadownav}
+Cauligi, A., Swan, R.~M., Ono, H., Daftry, S., Elliott, J., Matthies, L., \& Atha, D. (2023).
+ShadowNav: Crater-based localization for nighttime and permanently shadowed region lunar navigation.
+In \textit{2023 IEEE Aerospace Conference} (pp.~1--12).
+Institute of Electrical and Electronics Engineers.
+
+
+\bibitem{crassidis2011optimal}
+Crassidis, J. L., and Junkins, J. L., *Optimal Estimation of Dynamic Systems*, 2nd ed., Chapman and Hall/CRC, Boca Raton, FL, 2011, Ch. 7.
+
+
+\bibitem{christensen2011terrain}
+Christensen, D., \& Geller, D. (2011).
+Terrain-relative and beacon-relative navigation for lunar powered descent and landing.
+\textit{The Journal of the Astronautical Sciences}, 58(1), 121--151. Springer.
+
+
+\bibitem{christian2021tutorial}
+Christian, J.~A. (2021).
+A tutorial on horizon-based optical navigation and attitude determination with space imaging systems.
+\textit{IEEE Access}, 9, 19819--19853. IEEE.
+
+
+\bibitem{givens2023square}
+Givens, M.~W., \& McMahon, J.~W. (2023).
+Square-root extended information filter for visual-inertial odometry for planetary landing.
+\textit{Journal of Guidance, Control, and Dynamics}, 46(2), 231--245.
+American Institute of Aeronautics and Astronautics.
+
+
+\bibitem{holt2018orion}
+Holt, G.~N., D'Souza, C.~N., \& Saley, D.~W. (2018).
+Orion optical navigation progress toward exploration mission 1.
+In \textit{2018 Space Flight Mechanics Meeting} (p.~1978).
+
+\bibitem{johnson2008overview}
+Johnson, A.~E., \& Montgomery, J.~F. (2008).
+Overview of terrain relative navigation approaches for precise lunar landing.
+\textit{2008 IEEE Aerospace Conference}, pp.\ 1--10.
+IEEE.
+
+\bibitem{kenneally2020basilisk}
+Kenneally, P.~W., Piggott, S., \& Schaub, H. (2020).
+Basilisk: A flexible, scalable, and modular astrodynamics simulation framework.
+\textit{Journal of Aerospace Information Systems}, 17(9), 496--507.
+American Institute of Aeronautics and Astronautics.
+
+
+ \bibitem{maley2013multiplicative}
+Maley, J.~M. (2013).
+\textit{Multiplicative quaternion extended Kalman filtering for nonspinning guided projectiles}.
+Technical Report.
+
+\bibitem{markley2004multiplicative}
+Markley, F.~L. (2004).
+Multiplicative vs. additive filtering for spacecraft attitude determination.
+\textit{Dynamics and Control of Systems and Structures in Space}, 48, 467--474. Citeseer.
+
+\bibitem{maass2020crater}
+Maass, B., Woicke, S., Oliveira, W.~M., Razgus, B., \& Kr{\"u}ger, H. (2020).
+Crater navigation system for autonomous precision landing on the moon.
+\textit{Journal of Guidance, Control, and Dynamics}, 43(8), 1414--1431. American Institute of Aeronautics and Astronautics.
+
+\end{thebibliography}
+
+
+
+\newpage
+\appendix
+
+
+\begin{comment}
+    
+
+\section{Code Listings}
+\label{Appendix:A}
+    
+
+\subsubsection{scenarioEkfMoon.py}
+\lstinputlisting[
+    caption={Basilisk Simulation Script},
+    label={lst:main}
+]{code/scenarioEkfMoon.py}
+
+\subsubsection{RunNavFromSimData.py}
+\lstinputlisting[
+    caption={Main Script to Compute MCMF Truth and Feed Data to Algorithms},
+    label={lst:main}
+]{code/RunNavFromSimData.py}
+
+\subsubsection{faciliateSimulation.py}
+\lstinputlisting[
+    caption={Script to Assist Main Simulation Generate Measurements and Propagate True MCMF Attitude},
+    label={lst:main}
+]{code/faciliateSimulation.py}
+
+\subsubsection{EkfPoseEstimator.py}
+\lstinputlisting[
+    caption={Script Containing the EKF Algorithm Class},
+    label={lst:main}
+]{code/EkfPoseEstimator.py}
+
+\subsubsection{MoonEGMF.py}
+\lstinputlisting[
+    caption={Script Containing the EGMF Algorithm Class},
+    label={lst:main}
+]{code/MoonEGMF.py}
+
+
+\subsubsection{AnalysisTools.py}
+\lstinputlisting[
+    caption={Post Processing Analysis Tooling Class Script},
+    label={lst:main}
+]{code/AnalysisTools.py}
+
+\subsubsection{RunDirAnalysis.py}
+\lstinputlisting[
+    caption={Post Processing Simulation Run Analysis Script},
+    label={lst:main}
+]{code/RunDirAnalysis.py}
+
+\subsubsection{Quaternion.py}
+\lstinputlisting[
+    caption={Quaternion Class},
+    label={lst:main}
+]{code/Quaternion.py}
+
+
+\end{comment}
+% \newpage
+\section{Initial EGMF Gaussian Mixture}
+\label{Appendix:B}
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=0.8\linewidth]{plots/GMM/GMM_state_0.png}
+    \caption{Initial Position GMM Along First Axis}
+    \label{plot_GMM:r}
+\end{figure}
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=0.8\linewidth]{plots/GMM/GMM_state_3.png}
+    \caption{Initial Velocity GMM Along First Axis}
+    \label{plot_GMM:v}
+\end{figure}
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=0.8\linewidth]{plots/GMM/GMM_state_6.png}
+    \caption{Initial Attitude Error GMM Along First Axis}
+    \label{plot_GMM:alpha}
+\end{figure}
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=0.8\linewidth]{plots/GMM/GMM_state_9.png}
+    \caption{Initial Gyroscope Bias Error GMM Along First Axis}
+    \label{plot_GMM:beta}
+\end{figure}
+
+
+
+
+\end{document}
