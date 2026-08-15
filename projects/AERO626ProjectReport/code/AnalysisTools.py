@@ -314,7 +314,7 @@ class PoseAnalyzer():
             print(f"Saved: {out_path}")
 
 
-    ## TODO: MAKE THIS AN INHERITED CLASS METHOD
+    ##  MAKE THIS AN INHERITED CLASS METHOD
     def plot_landmark_innovations_lvlh(self,
     innArray,
     innTime_array,

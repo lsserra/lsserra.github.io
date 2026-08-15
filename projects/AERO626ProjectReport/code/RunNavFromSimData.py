@@ -267,7 +267,7 @@ def RunNavFromSimData(runDataDir, DECOUPLED_FLAG, TRUE_MEAS_FLAG, saveDataBool =
     # process noise
     sigma_gyroMeasNoise = np.sqrt(10)*10e-9 # rad/sec^(1/2)
     sigma_gyroBiasNoise = np.sqrt(10)*10e-12 # rad/sec^(3/2)
-    Qmekf = block_diag(sigma_gyroMeasNoise * np.eye(3),sigma_gyroBiasNoise * np.eye(3)) # TODO check!
+    Qmekf = block_diag(sigma_gyroMeasNoise * np.eye(3),sigma_gyroBiasNoise * np.eye(3)) 
 
     # pass IC's, process noise PSD to filter
     ekf.initialize(
