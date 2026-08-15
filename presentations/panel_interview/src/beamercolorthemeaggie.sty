@@ -64,15 +64,12 @@
 % Use Metropolis theme's native section pages instead of custom TikZ overlays
 % This provides consistent styling with the theme and avoids TikZ conflicts
 
-% Enable section pages in metropolis theme
-\setbeamertemplate{section page}{
-  \begin{center}
-    {\usebeamerfont{section title}\usebeamercolor[fg]{frametitle}\insertsection}
-  \end{center}
-}
+% Keep section page as Metropolis default (no override needed)
 
 \setbeamertemplate{subsection page}{
   \begin{center}
+    {\usebeamerfont{section title}\usebeamercolor[fg]{frametitle}\insertsection}
+    \vspace{0.5cm}
     {\usebeamerfont{subsection title}\usebeamercolor[fg]{frametitle}\insertsubsection}
   \end{center}
 }
