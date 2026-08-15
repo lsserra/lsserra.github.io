@@ -74,31 +74,19 @@
 }
 
 % -------------------------------------------------------------------------
-% Subsection page
+% Subsection page (custom frame since Metropolis doesn't have \subsectionpage)
 % -------------------------------------------------------------------------
-\setbeamertemplate{subsection page}{
-  \begin{centering}
-    \vspace*{\fill}
-
-    {\usebeamerfont{section title}
-     \usebeamercolor[fg]{frametitle}
-     \insertsection\par}
-
-    \vspace{0.5cm}
-
-    {\usebeamerfont{subsection title}
-     \usebeamercolor[fg]{frametitle}
-     \insertsubsection\par}
-
-    \vspace*{\fill}
-  \end{centering}
-}
-
 \AtBeginSubsection[]{
   {
     \setbeamertemplate{frame footer}{}
     \begin{frame}[plain]
-      \subsectionpage
+      \begin{center}
+        \vspace*{\fill}
+        {\usebeamerfont{section title}\usebeamercolor[fg]{frametitle}\insertsection\par}
+        \vspace{0.5cm}
+        {\usebeamerfont{subsection title}\usebeamercolor[fg]{frametitle}\insertsubsection\par}
+        \vspace*{\fill}
+      \end{center}
     \end{frame}
   }
 }
