@@ -6,6 +6,12 @@
 \usepackage{appendixnumberbeamer}
 \usepackage{booktabs}
 \usepackage{xspace}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% TODO: Import notation definitions from AERO626ProjectReport/main.tex
+% \input{../../projects/AERO626ProjectReport/notation.tex}
 
 \title{Portfolio Presentation}
 \subtitle{Panel Interview}
@@ -22,46 +28,154 @@
   \tableofcontents
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%% PERSONAL INTRODUCTION %%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{About Me}
 
-\begin{frame}{Background}
-  \begin{itemize}
-    \item Software Engineer with focus on full-stack development
-    \item Experience in modern web technologies and cloud infrastructure
-    \item Passionate about building scalable systems
-  \end{itemize}
+\begin{frame}{Personal Introduction}
+  % TODO: Add personal background, education, motivation
+  % Keep text minimal — use diagrams or images if helpful
 \end{frame}
 
-\section{Key Projects}
+%%%%%%%%%%%%%%%%%%%%%%%%%% PRIOR WORK EXPERIENCE %%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Prior Work Experience}
+\subsection{foo}
 
-\begin{frame}{Featured Work}
-  \begin{itemize}
-    \item Project 1: [Description]
-    \item Project 2: [Description]
-    \item Project 3: [Description]
-  \end{itemize}
+% --- Sandia ---
+
+\begin{frame}{Sandia Experience}
+  % TODO: Technical contributions, projects, impact
 \end{frame}
 
-\section{Core Competencies}
+% --- Firefly ---
 
-\begin{frame}{Technical Skills}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.5\textwidth}
-      \textbf{Languages}
-      \begin{itemize}
-        \item Python
-        \item TypeScript
-        \item JavaScript
-      \end{itemize}
+\begin{frame}{Firefly Experience}
+  % TODO: Technical contributions, projects, impact
+\end{frame}
 
-    \column{0.5\textwidth}
-      \textbf{Technologies}
-      \begin{itemize}
-        \item React
-        \item Node.js
-        \item AWS
-      \end{itemize}
-  \end{columns}
+% --- LASR Lab ---
+
+\begin{frame}{LASR Lab Research}
+  % TODO: Research focus, contributions
+\end{frame}
+
+\begin{frame}{Computer Vision in LASR Lab}
+  % TODO: Computer vision applications, techniques
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% TECHNICAL PROJECTS %%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Technical Projects}
+
+% --- AERO 626: Lunar Lander Pose Estimation ---
+\subsection{AERO 626: Lunar Lander Pose Estimation}
+
+\begin{frame}{Problem Statement}
+  % TODO: Problem definition
+  % Math/diagrams from: projects/AERO626ProjectReport/main.tex
+\end{frame}
+
+\begin{frame}{Coordinate Frames \& Reference Frame Selection}
+  % TODO: Coordinate frame definitions (MCMF, MCI, Body, Camera, Gyroscope)
+  % Consider: Moon-Centered Moon-Fixed (MCMF) vs. Moon-Centered Inertial (MCI)
+  % Diagrams recommended
+\end{frame}
+
+\begin{frame}{State Definition \& Dynamics}
+  % TODO: State vector definition (position, velocity, attitude quaternion)
+  % State propagation equations (kinematics + lunar gravity dynamics)
+  % Math from: projects/AERO626ProjectReport/main.tex Equations \ref{eq:StateDef} and \ref{eq:StateDynamicsModel}
+\end{frame}
+
+\begin{frame}{Landmark Measurement Model}
+  % TODO: Optical landmark detection and measurement generation
+  % Relative position measurement formulation
+  % Math from: projects/AERO626ProjectReport/main.tex Section "Discrete Landmark Measurement Update"
+\end{frame}
+
+\begin{frame}{MEKF: Multiplicative Error Quaternion Formulation}
+  % TODO: Error quaternion kinematics
+  % Design choices: error encapsulated in body frame
+  % Gyroscope model and bias representation
+  % Math from: projects/AERO626ProjectReport/main.tex Section "Multiplicative Error Quaternion Formulation"
+  % Equations: \ref{eq:errQuatDef}, \ref{eq:mekfVecKin}, \ref{eq:mekfStateSpace}
+\end{frame}
+
+\begin{frame}{MEKF: State Space Dynamics}
+  % TODO: Linearized error quaternion kinematics
+  % Angular velocity error model
+  % Bias dynamics
+  % Math from: projects/AERO626ProjectReport/main.tex Equation \ref{eq:mekfStateSpace}
+\end{frame}
+
+\begin{frame}{MEKF: Measurement Jacobians}
+  % TODO: Measurement sensitivity matrices for attitude estimation
+  % Link measurement model to error state space
+\end{frame}
+
+\begin{frame}{EKF: Translational State Estimation}
+  % TODO: Position and velocity state propagation
+  % Measurement Jacobians for landmark observations
+  % Brief formulation (compared to full MEKF detail)
+\end{frame}
+
+\begin{frame}{Simulation Environment \& Results}
+  % TODO: Basilisk simulation setup
+  % Performance metrics: attitude error (target: ±0.2°), position error (target: ±20m)
+  % Plots from: projects/AERO626ProjectReport/plots/
+  % Results comparison between EKF and EGMF approaches
+\end{frame}
+
+% --- Research: Relative Pose Estimation ---
+\subsection{Research: Relative Pose Estimation}
+
+\begin{frame}{ZED2i Camera Integration \& Target Tracking}
+  % TODO: Sensor characteristics and calibration
+  % Real-time tracking pipeline
+\end{frame}
+
+\begin{frame}{Relative Pose Estimation Problem}
+  % TODO: Problem formulation
+  % Applications (proximity operations, rendezvous, etc.)
+\end{frame}
+
+\begin{frame}{Assumptions \& Geometry}
+  % TODO: Key assumptions in relative pose estimation
+  % Geometric constraints and reference frames
+  % Design choices and their justification
+\end{frame}
+
+\begin{frame}{Point-Cloud Registration Approach}
+  % TODO: ICP-based methods
+  % Math: point-to-point, point-to-plane cost functions
+  % Optimization strategy
+  % Reference: research/documentation/research_documentation.tex
+\end{frame}
+
+\begin{frame}{Monocular Point-n-Perspective (PnP) Approach}
+  % TODO: PnP problem formulation
+  % Comparison with point-cloud registration
+  % Trade-offs and applicability
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% APPLICATION AT FIREFLY %%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Application at Firefly}
+
+\begin{frame}{Technical Applications}
+  % TODO: How MEKF/EKF/computer vision applied to spacecraft problems
+\end{frame}
+
+\begin{frame}{Key Contributions}
+  % TODO: Specific projects or systems where research was leveraged
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% FIT FOR ROLE %%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Why I'm a Good Fit}
+
+\begin{frame}{Technical Strengths}
+  % TODO: Core competencies aligned with role requirements
+\end{frame}
+
+\begin{frame}{Research \& Development Mindset}
+  % TODO: Problem-solving approach, learning from projects
 \end{frame}
 
 \end{document}

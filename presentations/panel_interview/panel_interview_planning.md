@@ -51,6 +51,6 @@ The notation in the slides for these DESIGN CHOICES and ASSUMPTIONS should be co
         - Point-Cloud Registration Approach
         - Monocular Point-n-Perspective Approach
 
-* How I applied this knowledge at Firefly [\section]
+* Application of knowledge at Firefly [\section]
 
-* Why I am a good fit for this role [\section]
+* Connection to this role [\section]
