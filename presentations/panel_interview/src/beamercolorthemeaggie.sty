@@ -58,14 +58,33 @@
   }
 }
 
-% Automate Section Transition Slides
-\AtBeginSection[]{
-  \customtransitionframe{\insertsection}
+% =========================================================================
+% METROPOLIS BUILT-IN SECTION PAGES (ALTERNATIVE TO CUSTOM TRANSITIONS)
+% =========================================================================
+% Use Metropolis theme's native section pages instead of custom TikZ overlays
+% This provides consistent styling with the theme and avoids TikZ conflicts
+
+% Enable section pages in metropolis theme
+\setbeamertemplate{section page}{
+  \begin{center}
+    {\usebeamerfont{section title}\usebeamercolor[fg]{frametitle}\insertsection}
+  \end{center}
 }
 
-% Automate Subsection Transition Slides
+\setbeamertemplate{subsection page}{
+  \begin{center}
+    {\usebeamerfont{subsection title}\usebeamercolor[fg]{frametitle}\insertsubsection}
+  \end{center}
+}
+
+% Automate Section Pages (using Metropolis default, not custom)
+\AtBeginSection[]{
+  \frame{\sectionpage}
+}
+
+% Automate Subsection Pages
 \AtBeginSubsection[]{
-  \customtransitionframe{\insertsubsection}
+  \frame{\subsectionpage}
 }
 
 
