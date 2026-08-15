@@ -411,6 +411,28 @@ After applying some useful quaternion multiplication identities we arrive at:
 \label{eq:mekfDirToLinearize}
 \end{equation}
 
+% TODO: add a further description of this 'linearzation'
+%  FROM AI:
+% Using the standard definition of a quaternion product, the vector component of the second term expands as follows:
+% \begin{equation}
+% \frac{1}{2} \begin{bmatrix} \delta\boldsymbol{\omega}(t) \\ 0 \end{bmatrix} \otimes \begin{bmatrix} \delta\mathbf{q} \\ \delta q_4 \end{bmatrix} \approx \frac{1}{2} \begin{bmatrix} \delta\boldsymbol{\omega}(t) \\ 0 \end{bmatrix} \otimes \begin{bmatrix} \delta\mathbf{q} \\ 1 \end{bmatrix}
+% \end{equation}
+
+% Focusing strictly on the resulting vector portion of this multiplication:
+% \begin{equation}
+% \mathbf{v}_{\text{part}} = \frac{1}{2} \left( \delta\boldsymbol{\omega}(t) \cdot 1 + 0 \cdot \delta\mathbf{q} + \delta\boldsymbol{\omega}(t) \times \delta\mathbf{q} \right)
+% \end{equation}
+
+% At this stage, we apply the first-order linearization assumption to simplify the expression:
+% \begin{itemize}
+%     \item \textbf{Dropping Higher-Order Terms:} The cross product term $\delta\boldsymbol{\omega}(t) \times \delta\mathbf{q}$ represents the multiplication of two small error quantities (the angular velocity error and the quaternion vector error).
+%     \item \textbf{First-Order Focus:} Linearization systematically discards these products of errors because their magnitude is negligibly small (classified as second-order terms).
+%     \item \textbf{Result:} Setting the cross product to zero simplifies the vector component of the quaternion product to:
+% \end{itemize}
+
+% \begin{equation}
+% \mathbf{v}_{\text{part}} \approx \frac{1}{2} \delta\boldsymbol{\omega}(t)
+% \end{equation}
 
 At this point we decide to linearize the nonlinear second term in Equation \ref{eq:mekfDirToLinearize} to first order. This produces linearized kinematics for the vector and scalar portions of the error quaternion.
 
