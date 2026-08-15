@@ -1,3 +1,6 @@
+% =========================================================================
+% BRANDING COLORS & METROPOLIS COMPONENT THEMING
+% =========================================================================
 \definecolor{ag-maroon}{RGB}{80,0,0}
 \definecolor{ag-maroon2}{RGB}{60,0,0}
 \definecolor{ag-blue}{RGB}{0,60,113}
@@ -5,17 +8,92 @@
 \definecolor{ag-brown}{RGB}{116,79,40}
 \definecolor{ag-tan}{RGB}{153,133,66}
 \definecolor{ag-beige}{RGB}{214,210,196}
-\definecolor{ag-white}{RGB}{246,246,246}
+\definecolor{ag-white}{RGB}{255,255,255}
 \definecolor{ag-black}{RGB}{0,0,0}
 \definecolor{ag-light-black}{RGB}{20,20,20}
 
-\setbeamercolor{background canvas}{fg=ag-white}
+\setbeamercolor{background canvas}{bg=ag-white, fg=ag-black}
 \setbeamercolor{normal text}{fg=ag-black}
 \setbeamercolor{alerted text}{fg=ag-tan}
 \setbeamercolor{example text}{fg=ag-light-black}
 
-\setbeamercolor{frametitle}{bg=ag-maroon}
+\setbeamercolor{frametitle}{bg=ag-maroon, fg=ag-white}
 \setbeamercolor{progress bar}{fg=ag-maroon}
 \setbeamercolor{title separator}{fg=ag-maroon}
 \setbeamercolor{progress bar in head/foot}{fg=ag-tan}
-\setbeamercolor{progress bar in section page}{fg=ag-tan}
+\setbeamercolor{progress bar in section page}{fg=ag-maroon}
+
+
+% =========================================================================
+% AUTOMATIC TRANSITION SLIDES FOR SECTIONS & SUBSECTIONS
+% =========================================================================
+% Custom transition frame template (Maroon box on pure white canvas, rounded corners)
+\newcommand{\customtransitionframe}[1]{%
+  {
+    \setbeamertemplate{frame footer}{} % Clear footer on transition slides
+    
+    \begin{frame}[]
+      \begin{tikzpicture}[remember picture, overlay]
+        % 1. Force absolute pure white background canvas over the whole slide
+        \fill[white] (current page.south west) rectangle (current page.north east);
+        
+        % 2. Centered auto-resizing maroon text box with rounded corners
+        \node[
+          rectangle,
+          rounded corners=15pt,        % Rounds the edges of the box
+          fill=ag-maroon,
+          text width=0.7\paperwidth,
+          inner sep=20pt,              % Padding around text (controls box height)
+          align=center,                % Horizontally centers the text
+          draw=ag-maroon,
+          line width=0pt
+        ] at (current page.center) {
+          \begin{minipage}{\linewidth}
+            \centering
+            \textcolor{white}{#1}%
+          \end{minipage}
+        };
+      \end{tikzpicture}
+    \end{frame}
+  }
+}
+
+% Automate Section Transition Slides
+\AtBeginSection[]{
+  \customtransitionframe{\insertsection}
+}
+
+% Automate Subsection Transition Slides
+\AtBeginSubsection[]{
+  \customtransitionframe{\insertsubsection}
+}
+
+
+% =========================================================================
+% CUSTOM FOOTER: ABSOLUTE WIDTH GEOMETRIC PHYSICAL CENTERING
+% =========================================================================
+% Set colors for the text components in the footer
+\setbeamercolor{footer section}{fg=ag-maroon}
+\setbeamercolor{footer subsection}{fg=ag-black}
+\setbeamercolor{footer separator}{fg=gray!60}
+
+\setbeamertemplate{frame footer}{
+  % Bypasses the Beamer framework grid entirely to force absolute physical centering
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[
+      anchor=south, 
+      yshift=0.22cm % Controls the height/vertical alignment from the absolute bottom edge
+    ] at (current page.south) {
+      \usebeamerfont{page number in head/foot}\scriptsize
+      %
+      % 1. Display Section (if it exists)
+      \ifx\insertsection\empty\else
+        \usebeamercolor[fg]{footer section}{\bfseries\insertsection}%
+      \ifx\insertsubsection\empty\else
+        % 2. Display Subsection Separator and Text (if it exists under this section)
+        \ \usebeamercolor[fg]{footer separator}{\raisebox{0.05ex}{$\rightarrow$}}\ %
+        \usebeamercolor[fg]{footer subsection}{\insertsubsection}%
+      \fi\fi
+    };
+  \end{tikzpicture}
+}
