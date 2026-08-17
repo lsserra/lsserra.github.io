@@ -10,8 +10,6 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 
-% TODO: Import notation definitions from AERO626ProjectReport/main.tex
-% \input{../../projects/AERO626ProjectReport/notation.tex}
 
 \title{Portfolio Presentation}
 \subtitle{Panel Interview}
@@ -32,115 +30,123 @@
 \section{About Me}
 
 \begin{frame}{Personal Introduction}
-  % TODO: Add personal background, education, motivation
-  % Keep text minimal — use diagrams or images if helpful
+  % TODO: Add Map, pictures, education
+  % TODO: Create Timeline? (CANVA)
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%% PRIOR WORK EXPERIENCE %%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Prior Work Experience}
-\subsection{foo}
-
 % --- Sandia ---
+\subsection{Sandia National Laboratories}
 
-\begin{frame}{Sandia Experience}
+\begin{frame}{Sandia: Overview}
+  % TODO: Add pictures of MACH-TB
+  % TODO: Add diagram of GNC architecture (CANVA)
+\end{frame}
+
+\begin{frame}{Sandia: Contribution}
   % TODO: Technical contributions, projects, impact
 \end{frame}
+
 
 % --- Firefly ---
-
-\begin{frame}{Firefly Experience}
-  % TODO: Technical contributions, projects, impact
+\subsection{Firefly Aerospace}
+\begin{frame}{Firefly: Overview}
+  % TODO: Elytra Spacecraft intro / EM3 mission
+  % TODO: Add diagram of GNC architecture (CANVA)
 \end{frame}
 
-% --- LASR Lab ---
-
-\begin{frame}{LASR Lab Research}
-  % TODO: Research focus, contributions
-\end{frame}
-
-\begin{frame}{Computer Vision in LASR Lab}
-  % TODO: Computer vision applications, techniques
-\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%% TECHNICAL PROJECTS %%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Technical Projects}
 
 % --- AERO 626: Lunar Lander Pose Estimation ---
-\subsection{AERO 626: Lunar Lander Pose Estimation}
+\subsection{Lunar Lander Pose Estimation Project}
 
 \begin{frame}{Problem Statement}
-  % TODO: Problem definition
-  % Math/diagrams from: projects/AERO626ProjectReport/main.tex
+  % TODO: Pull NASA Moon-Base statement?
 \end{frame}
 
-\begin{frame}{Coordinate Frames \& Reference Frame Selection}
-  % TODO: Coordinate frame definitions (MCMF, MCI, Body, Camera, Gyroscope)
-  % Consider: Moon-Centered Moon-Fixed (MCMF) vs. Moon-Centered Inertial (MCI)
-  % Diagrams recommended
-\end{frame}
-
-\begin{frame}{State Definition \& Dynamics}
-  % TODO: State vector definition (position, velocity, attitude quaternion)
-  % State propagation equations (kinematics + lunar gravity dynamics)
-  % Math from: projects/AERO626ProjectReport/main.tex Equations \ref{eq:StateDef} and \ref{eq:StateDynamicsModel}
+\begin{frame}{Coordinate Frames Selection}
+  % TODO: explain MCMF reference frame choice
 \end{frame}
 
 \begin{frame}{Landmark Measurement Model}
   % TODO: Optical landmark detection and measurement generation
-  % Relative position measurement formulation
-  % Math from: projects/AERO626ProjectReport/main.tex Section "Discrete Landmark Measurement Update"
 \end{frame}
+
+\begin{frame}{Full State Definition \& Dynamics}
+  % TODO: mathematically define the states desired to be known at successive points in time
+  % define dynamics
+  % CHOOSE to only model Moon Newtonian gravity as Force acting on SC 
+\end{frame}
+
+\begin{frame}{Estimation Algorithm Design}
+  % CHOOSE to use MEKF to estimate attitude states.
+  % CHOOSE to use EKF to estimate translational states
+\end{frame}
+
 
 \begin{frame}{MEKF: Multiplicative Error Quaternion Formulation}
   % TODO: Error quaternion kinematics
   % Design choices: error encapsulated in body frame
-  % Gyroscope model and bias representation
+  % CHOOSE Gyroscope model and bias representation
   % Math from: projects/AERO626ProjectReport/main.tex Section "Multiplicative Error Quaternion Formulation"
   % Equations: \ref{eq:errQuatDef}, \ref{eq:mekfVecKin}, \ref{eq:mekfStateSpace}
 \end{frame}
 
-\begin{frame}{MEKF: State Space Dynamics}
-  % TODO: Linearized error quaternion kinematics
-  % Angular velocity error model
-  % Bias dynamics
-  % Math from: projects/AERO626ProjectReport/main.tex Equation \ref{eq:mekfStateSpace}
+\begin{frame}{MEKF: State Space Formulation}
+  % TODO: Pull in Block-Diagram of Error-State Handling 
 \end{frame}
 
 \begin{frame}{MEKF: Measurement Jacobians}
   % TODO: Measurement sensitivity matrices for attitude estimation
-  % Link measurement model to error state space
+
 \end{frame}
 
 \begin{frame}{EKF: Translational State Estimation}
-  % TODO: Position and velocity state propagation
-  % Measurement Jacobians for landmark observations
-  % Brief formulation (compared to full MEKF detail)
+  % TODO: Add dynamics Jacobians
 \end{frame}
 
-\begin{frame}{Simulation Environment \& Results}
+\begin{frame}{Full State-Space Representaion}
+  % TODO: Add dynamics Jacobians
+\end{frame}
+
+
+\begin{frame}{Simulation Environment}
   % TODO: Basilisk simulation setup
   % Performance metrics: attitude error (target: ±0.2°), position error (target: ±20m)
   % Plots from: projects/AERO626ProjectReport/plots/
   % Results comparison between EKF and EGMF approaches
 \end{frame}
 
-% --- Research: Relative Pose Estimation ---
-\subsection{Research: Relative Pose Estimation}
+\begin{frame}{Results}
+\end{frame}
 
-\begin{frame}{ZED2i Camera Integration \& Target Tracking}
+
+
+% --- LASR Lab ---
+\section{TAMU Land, Air, and Space Robotics (LASR) Lab}
+\begin{frame}{LASR: Overview}
+  % TODO: Research focus, contributions
+\end{frame}
+
+\begin{frame}{LASR: Computer Vision}
+  % TODO: Computer vision applications, techniques
+\end{frame}
+
+\subsection{Real-Time Target Tracking Algorithm}
+\begin{frame}{Stereo-Vision Camera Integration \& Target Tracking}
   % TODO: Sensor characteristics and calibration
   % Real-time tracking pipeline
 \end{frame}
 
-\begin{frame}{Relative Pose Estimation Problem}
-  % TODO: Problem formulation
-  % Applications (proximity operations, rendezvous, etc.)
-\end{frame}
+\subsection{Relative Pose Estimation: 3D Point Cloud}
 
-\begin{frame}{Assumptions \& Geometry}
-  % TODO: Key assumptions in relative pose estimation
-  % Geometric constraints and reference frames
-  % Design choices and their justification
+\begin{frame}{Problem Statement}
+  % TODO: Create CANVA diag. relative pose est. geometry
+  % assumptions
+  % geometry of problem
 \end{frame}
 
 \begin{frame}{Point-Cloud Registration Approach}
@@ -150,32 +156,43 @@
   % Reference: research/documentation/research_documentation.tex
 \end{frame}
 
+
+\subsection{Relative Pose Estimation: Monocular}
+\begin{frame}{Why a Monocular Approach?}
+  % TODO: pull in PCD degeneracy at smaller grappling points pictures
+  % - cheaper, 
+\end{frame}
+
 \begin{frame}{Monocular Point-n-Perspective (PnP) Approach}
   % TODO: PnP problem formulation
   % Comparison with point-cloud registration
   % Trade-offs and applicability
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%% APPLICATION AT FIREFLY %%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Application at Firefly}
 
-\begin{frame}{Technical Applications}
-  % TODO: How MEKF/EKF/computer vision applied to spacecraft problems
+%%%%%%%%%%%%%%%%%%%%%%%%%% APPLICATION AT FIREFLY %%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Skillset Applied at Firefly}
+\subsection{Synthetic Starfield Image Generator GNC Integration}
+\begin{frame}{Problem At Hand}
+  % TODO: Create Geometry diag of problem (CANVA)
+  % explain open-loop tracking slew -> closed-loop AON tracking
+  % add Starlite inputs
+  % 
 \end{frame}
 
-\begin{frame}{Key Contributions}
-  % TODO: Specific projects or systems where research was leveraged
+\begin{frame}{Attitude Interpretation and Image Generation Frame Definition}
+  
+\end{frame}
+
+\begin{frame}{Preparations for HWIL Optical Payload Testing}
+  % TODO: create block diagram of HWIL (CANVA)
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%% FIT FOR ROLE %%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Why I'm a Good Fit}
+\section{Concluding Remarks}
 
-\begin{frame}{Technical Strengths}
-  % TODO: Core competencies aligned with role requirements
-\end{frame}
-
-\begin{frame}{Research \& Development Mindset}
-  % TODO: Problem-solving approach, learning from projects
+\begin{frame}{Why I Am Fit For This Role}
+  
 \end{frame}
 
 \end{document}
