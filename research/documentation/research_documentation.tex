@@ -99,11 +99,17 @@
 
 %% ^^ above is old code, but has the notation that I use
 
-\newcommand{\pBiB}{\vect{p}^B_{q_{i}/B}}
-\newcommand{\pCiC}{\vect{p}^C_{p_{i}/C}}
-\newcommand{\pBCC}{\vect{p}^C_{B/C}}
-\newcommand{\TBCtoC}{\mat{T}_{B \rightarrow C}} % 4x4 Homogeneous Transformation
-\newcommand{\nCiC}{\vect{n}^C_{p_{i}/C}} % Surface normal vector at target point p_i in C frame
+\newcommand{\pBiB}{\vect{p}^{\mathit{B}}_{q_{i}/\mathbf{B}}} 
+\newcommand{\pBjB}{\vect{p}^{\mathit{B}}_{q_{j}/\mathbf{B}}} 
+\newcommand{\pBi}{\vect{p}_{q_{i}/\mathbf{B}}}
+\newcommand{\pBip}{\vect{p}_{p_{i}/\mathbf{B}}} 
+\newcommand{\pCiC}{\vect{p}^{\mathit{C}}_{p_{i}/\mathbf{C}}} 
+\newcommand{\pCi}{\vect{p}_{p_{i}/\mathbf{C}}} 
+\newcommand{\pBCC}{\vect{p}^{\mathit{C}}_{\mathbf{B}/\mathbf{C}}} 
+\newcommand{\pBC}{\vect{p}_{\mathbf{B}/\mathbf{C}}} 
+\newcommand{\TBCtoC}{\mat{T}_{\mathit{B} \rightarrow \mathit{C}}} % 4x4 Homogeneous Transformation 
+\newcommand{\nCiC}{\vect{n}^{\mathit{C}}_{p_{i}/\mathbf{C}}} % Surface normal vector at target point p_i in C
+
 
 
 %% RSO is point in 3d space
@@ -120,13 +126,49 @@
 
 To transform points on a rigid body frame $B$ to points in a camera frame $C$, we can express the operation using both a 3D affine vector notation and a $4 \times 4$ homogeneous transformation matrix.
 
-\subsection{Transformation in $\mathbb{R}^3$}
-The standard 3D kinematic translation and rotation mapping is given by:
+\subsection{Frame Definitions}
+
 \begin{equation}
-    \pCiC = \TCB \pBiB + \pBCC
+   \mathit{C} = \{ \mathbf{C}, \hat{\vect{c}}_1, \hat{\vect{c}}_2, \hat{\vect{c}}_3 \}
+\end{equation}
+    
+\begin{equation}
+   \mathit{B} = \{ \mathbf{B}, \hat{\vect{b}}_1, \hat{\vect{b}}_2, \hat{\vect{b}}_3 \}
 \end{equation}
 
-\subsection{Homogeneous Transformation in $\mathbb{R}^4$}
+\subsection{Measurement Point Cloud Point Defintion}
+The point cloud derived from measurement source has $P$ number of points, which mathematically are vectors in $\mathbb{R}^3$ of each point wrt the camera origin ,$\mathbf{C}$ , expressed in the $\mathit{C}$ frame.
+
+\begin{equation}
+\pCiC , i = 1, 2, 3,... P
+\end{equation}
+
+\subsection{CAD Model Point Cloud Points Defintion}
+The point cloud derived from the CAD model may not have the same number of points as the measurement itself. The CAD model point cloud has $Q$ number of points, which mathematically are vectors in $\mathbb{R}^3$ of each point wrt the CAD PCD origin ,$\mathbf{B}$ , expressed in the $\mathit{B}$ frame.
+
+\begin{equation}
+\pBjB , j = 1, 2, 3,... Q
+\end{equation}
+
+\subsection{Measurement Model As The Transformation in $\mathbb{R}^3$}
+The standard 3D kinematic translation and rotation mapping is given by:
+\begin{equation}
+    \pCiC = \TCB \pBjB + \pBCC
+\end{equation}
+
+\subsection{The Coorespondence Problem}
+Each measurement $\pCiC$ has an assocated $\pBjB$ such that in a perfect noiseless environment, $\TCB$ and $\pBCC$ would map each $\pBjB$ to $\pCiC$ perfectly.
+
+Therefore we define the coorespondence set 
+\begin{equation}
+K = \{ (p_{i},q_{j}) \}
+\end{equation}
+
+
+Note that in the above equation point, even in a noiseless environment $p_{i}$ and $q_{j}$ are not gaurenteed to be the same point due to the discretizate sampling of the CAD model itself.
+
+
+\subsection{Generic Homogeneous Transformation in $\mathbb{R}^4$}
 By appending a scaling factor of 1 to our coordinate vectors, the rigid body mapping can be cleanly expressed as a single $4 \times 4$ matrix multiplication:
 \begin{equation}
     \begin{bmatrix}
@@ -172,17 +214,21 @@ Expanding this reveals the complete linear algebraic formulation:
 \subsection{Point-to-Plane Cost Function}
 The point-to-plane error metric minimizes the squared distance along the surface normal of the target point in the camera frame $C$. 
 
-Let $\pBiB$ represent a source point in the rigid body frame $B$, $\pCiC$ represent its corresponding target point on the surface in the camera frame $C$, and $\nCiC$ be the unit surface normal vector at $\pCiC$.
+Let $\pBjB$ represent a source point in the rigid body frame $B$, $\pCiC$ represent its corresponding target point on the surface in the camera frame $C$, and $\nCiC$ be the unit surface normal vector at $\pCiC$.
 
 The objective function seeking the optimal rigid transformation matrix $\TBCtoC$ is formulated as:
 
 \begin{equation}
-    J(\TBCtoC) = \sum_{i} \left[ \left( \pCiC - (\TCB \pBiB + \pBCC) \right) \cdot \nCiC \right]^2
+    J = \sum_{K = \{ (p_{i},q_{j}) \}} \left[ \left( \pCiC - (\TCB \pBjB + \pBCC) \right) \cdot \nCiC \right]^2
 \end{equation}
 
 
 \begin{equation}
-    J(\TBCtoC) = \sum_{i} \left[ \left( \pCiC - (\TCB \pBiB + \pBCC) \right) \right]^2
+    J = \sum_{K = \{ (p_{i},q_{j}) \}} \left[ \left( \pCiC - (\TCB \pBjB + \pBCC) \right) \right]^2
+\end{equation}
+
+\begin{equation}
+    \min_{\TCB, \pBCC} (J)
 \end{equation}
 
 Expressed compactly in homogeneous coordinates ($\mathbb{R}^4$), let $\tilde{\vect{p}}$ denote the homogeneous vector $[ \vect{p}^T, 1 ]^T$. The cost function is written as:
@@ -192,6 +238,21 @@ Expressed compactly in homogeneous coordinates ($\mathbb{R}^4$), let $\tilde{\ve
 \end{equation}
 
 Where $\mathbf{\Pi} = \begin{bmatrix} \mat{I}_{3\times3} & \vect{0}_{3\times1} \end{bmatrix}$ is a projection matrix used to drop the homogeneous scaling factor back down to $\mathbb{R}^3$ for the dot product calculation.
+
+\subsection{Laying out some uncoordinatized vectors}
+
+\begin{equation}
+    \pBi
+\end{equation}
+\begin{equation}
+    \pCi
+\end{equation}
+\begin{equation}
+    \pBC
+\end{equation}
+\begin{equation}
+    \pBip
+\end{equation}
 
 
 \newpage
@@ -203,6 +264,14 @@ The complete geometric measurement model is written as:
     \uRSOcI = \TIB \TBC \uRSOcC
 \end{equation}
 
-
+\begin{equation}
+   \mathit{N} = \{ \mathbf{O}, \hat{\vect{n}}_1, \hat{\vect{n}}_2, \hat{\vect{n}}_3 \}
+\end{equation}
+\begin{equation}
+    \mathit{I} = \{ \mathbf{O}, \hat{\vect{i}}_1, \hat{\vect{i}}_2, \hat{\vect{i}}_3 \}
+\end{equation}
+\begin{equation}
+   \mathit{M} = \{ \mathbf{M}, \hat{\vect{m}}_1, \hat{\vect{m}}_2, \hat{\vect{m}}_3 \}
+\end{equation}
 
 \end{document}
