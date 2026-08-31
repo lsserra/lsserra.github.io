@@ -9,6 +9,7 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{tikz}
 
 
 \title{Portfolio Presentation}
@@ -30,8 +31,10 @@
 \section{About Me}
 
 \begin{frame}{Personal Introduction}
-  % TODO: Add Map, pictures, education
-  % TODO: Create Timeline? (CANVA)
+    \centering
+    \vspace*{0cm}   % vertical nudge  (+ down / - up)   -- tune
+    \hspace*{0cm}   % horizontal nudge (+ right / - left) -- tune
+    \includegraphics[width=1.0\linewidth]{../images/personal_intro/mapUS.png}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%% PRIOR WORK EXPERIENCE %%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -39,34 +42,122 @@
 % --- Sandia ---
 \subsection{Sandia National Laboratories}
 
+% --- Sandia: Overview knobs (tune these) ---
+\def\sandiaOverviewTextWidth{1.0\textwidth} % width reserved for bullet text (shrink if image grows / overlaps)
+\def\sandiaTextXShift{-0.4cm}                 % horizontal shift of text block (negative = left)
+\def\sandiaTextYShift{10.3cm}                  % vertical shift of text block (positive = up)
+
+\def\sandiaImgWidth{7.5cm}                    % rendered width of hyp_gb_traj.png
+\def\sandiaImgXShift{-0.3cm}                  % horizontal offset from frame's bottom-right corner (negative = inward)
+\def\sandiaImgYShift{0.8cm}                   % vertical offset from frame's bottom edge (positive = upward) -- clears footer bar
+
+\def\sandiaImgTwoWidth{4cm}                    % rendered width of sandia_coworkers.jpeg
+\def\sandiaImgTwoXShift{0.3cm}                 % horizontal offset from frame's bottom-left corner (positive = inward)
+\def\sandiaImgTwoYShift{0.9cm}                  % vertical offset from frame's bottom edge (positive = upward) -- clears footer bar
+
 \begin{frame}{Sandia: Overview}
-  % TODO: Add pictures of MACH-TB
-  % TODO: Add diagram of GNC architecture (CANVA)
-  % repos: monorepo: FSW, format_defs, Sim, analysis_tools, JAVA_ground software 
+  \hspace*{\sandiaTextXShift}%
+  \raisebox{\sandiaTextYShift}{%
+  \begin{minipage}[t]{\sandiaOverviewTextWidth}
+    \begin{itemize}
+      \item \textbf{CPS / MACH-TB Program:} Army / Navy Long Range (1,700 - 2,200 mi range) hypersonic glide body
+      \begin{itemize}
+      \item 2-3 flights per year \textbf{\textbar}\ 8 person GNC and embedded software team
+      \end{itemize}
+      \item \textbf{Platform}: IMU + GPS Nav, 6 nozzle cold gas ACS
+      \item \textbf{Software Ecosystem}
+        \begin{itemize}
+          \item Monorepo \textbf{\textbar}\ C++ Pub/Sub FSW \textbf{\textbar}\ XML Telemetry Definitions + Auto-Generated Messages \textbf{\textbar}\ MATALB / Simulink Simulation \textbf{\textbar}\ TLM and Simulation Analysis Tools \textbf{\textbar}\ JAVA Vehicle Ground Software
+        \end{itemize}
+    \end{itemize}
+  \end{minipage}%
+  }
+  
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=south east, xshift=\sandiaImgXShift, yshift=\sandiaImgYShift]
+      at (current page.south east)
+      {\includegraphics[width=\sandiaImgWidth]{../images/sandia/hyp_gb_traj.png}};
+  \end{tikzpicture}
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=south west, xshift=\sandiaImgTwoXShift, yshift=\sandiaImgTwoYShift]
+      at (current page.south west)
+      {\includegraphics[width=\sandiaImgTwoWidth]{../images/sandia/sandia_coworkers.jpeg}};
+  \end{tikzpicture}
 \end{frame}
 
-\begin{frame}{Sandia: Contribution}
-  % TODO: Technical contributions, projects, impact
-\end{frame}
 
 
 % --- Firefly ---
 \subsection{Firefly Aerospace}
+
+% --- Firefly: Overview knobs (tune these; independent of the Sandia knobs above) ---
+\def\fireflyOverviewTextWidth{1.0\textwidth} % width reserved for bullet text (shrink if image grows / overlaps)
+\def\fireflyTextXShift{-0.4cm}                % horizontal shift of text block (negative = left)
+\def\fireflyTextYShift{10.3cm}                % vertical shift of text block (positive = up)
+
+\def\fireflyImgWidth{3cm}                     % rendered width of elytra_img.jpeg
+\def\fireflyImgXShift{-0.cm}                 % horizontal offset from frame's bottom-right corner (negative = inward)
+\def\fireflyImgYShift{0.8cm}                  % vertical offset from frame's bottom edge (positive = upward) -- clears footer bar
+
+\def\fireflyImgTwoWidth{3.cm}                % rendered width of firefly_coworkers.png
+\def\fireflyImgTwoXShift{-0.2cm}               % horizontal offset from frame's bottom-left corner (positive = inward)
+\def\fireflyImgTwoYShift{0.0cm}               % vertical offset from frame's bottom edge (positive = upward) -- clears footer bar
+
+\def\fireflyImgThreeWidth{6.cm}              % rendered width of ff_maunfarure_floor.png
+\def\fireflyImgThreeYShift{0.5cm}             % vertical offset from frame's bottom edge (positive = upward) -- clears footer bar
+
 \begin{frame}{Firefly: Overview}
-  % TODO: Elytra Spacecraft intro / EM3 mission
-  % TODO: Add diagram of GNC architecture (CANVA)
+  \hspace*{\fireflyTextXShift}%
+  \raisebox{\fireflyTextYShift}{%
+  \begin{minipage}[t]{\fireflyOverviewTextWidth}
+    \begin{itemize}
+      \item \textbf{Elytra Satellite \textbar\ Mission:} Responsive Space Relative Proximity Ops Demonstration
+      \item \textbf{Validating internal FSW:} Approaching TRR
+      \item \textbf{Exposure} ground ops vs algorithms design decisions, building FSW for on orbit ops
+      \item \textbf{Software Ecosystem:}
+          NASA F Prime C++ FSW \textbf{\textbar}\ \\NASA TRICK / JEOD C++ Simulation \textbf{\textbar}\ \\Python TLM and Simulation Analysis Tools \textbf{\textbar}\ \\F Prime GDS Ground Software
+        
+    \end{itemize}
+  \end{minipage}%
+  }
+  
+
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=south east, xshift=\fireflyImgXShift, yshift=\fireflyImgYShift]
+      at (current page.south east)
+      {\includegraphics[width=\fireflyImgWidth]{../images/firefly/firefly_coworkers.png}};
+  \end{tikzpicture}
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=south west, xshift=\fireflyImgTwoXShift, yshift=\fireflyImgTwoYShift]
+      at (current page.south west)
+      {\includegraphics[width=\fireflyImgTwoWidth]{../images/firefly/elytra_img.jpeg}};
+  \end{tikzpicture}
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=south, yshift=\fireflyImgThreeYShift]
+      at (current page.south)
+      {\includegraphics[width=\fireflyImgThreeWidth]{../images/firefly/ff_maunfarure_floor.png}};
+  \end{tikzpicture}
 \end{frame}
 
 \subsection{Software Architecture}
 \begin{frame}{FSW + Simulation : Sandia}
-    \hspace{-30pt}
-    \includegraphics[width=1.1\linewidth]{../images/sandia/Sandia_GNC_Arch.png}  
+    \centering
+    \vspace*{0cm}   % vertical nudge  (+ down / - up)   -- tune
+    \hspace*{0cm}   % horizontal nudge (+ right / - left) -- tune
+    \includegraphics[width=1.0\linewidth]{../images/sandia/Sandia_GNC_Arch.png}
 \end{frame}
 \begin{frame}{FSW + Simulation : Firefly}
-    \includegraphics[width=1.1\linewidth]{../images/firefly/FF_GNC_Arch.png}  
+    \centering
+    \vspace*{1cm}   % vertical nudge  (+ down / - up)   -- tune
+    \hspace*{-2cm}   % horizontal nudge (+ right / - left) -- tune
+    \includegraphics[width=1.3\linewidth]{../images/firefly/FF_GNC_Arch.png}
 \end{frame}
 \begin{frame}{FSW Support Software}
-    \includegraphics[width=1.\linewidth]{../images/firefly/Arch_Surrounding_FSW_&_SIM.png}  
+    \centering
+    \vspace*{0cm}   % vertical nudge  (+ down / - up)   -- tune
+    \hspace*{0cm}   % horizontal nudge (+ right / - left) -- tune
+    \includegraphics[width=1.0\linewidth]{../images/firefly/Arch_Surrounding_FSW_&_SIM.png}
+    % TODO: remove all the words... these should be verbalized rather than vizualized
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%% TECHNICAL PROJECTS %%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -77,6 +168,7 @@
 
 \begin{frame}{Problem Statement}
   % TODO: Pull NASA Moon-Base statement?
+  % TALK OVER IMAGES NO WORDS
 \end{frame}
 
 \begin{frame}{Coordinate Frames Selection}
@@ -85,18 +177,22 @@
 \end{frame}
 
 \begin{frame}{Landmark Measurement Model}
+  %  put image in upper right hand corner but smaller.. to talk over math!
   % TODO: Optical landmark detection and measurement generation
+  % TALK OVER MATH NO WORDS
 \end{frame}
 
 \begin{frame}{Full State Definition \& Dynamics}
   % TODO: mathematically define the states desired to be known at successive points in time
   % define dynamics
   % CHOOSE to only model Moon Newtonian gravity as Force acting on SC 
+  % TALK OVER MATH NO WORDS
 \end{frame}
 
 \begin{frame}{Estimation Algorithm Design}
   % CHOOSE to use MEKF to estimate attitude states.
   % CHOOSE to use EKF to estimate translational states
+  % TALK OVER MATH NO WORDS
 \end{frame}
 
 
@@ -106,10 +202,8 @@
   % CHOOSE Gyroscope model and bias representation
   % Math from: projects/AERO626ProjectReport/main.tex Section "Multiplicative Error Quaternion Formulation"
   % Equations: \ref{eq:errQuatDef}, \ref{eq:mekfVecKin}, \ref{eq:mekfStateSpace}
-\end{frame}
-
-\begin{frame}{MEKF: State Space Formulation}
-  % TODO: Pull in Block-Diagram of Error-State Handling 
+  %  MEKF: State Space Formulation
+  % TALK OVER MATH NO WORDS
 \end{frame}
 
 \begin{frame}{EKF: Translational State Estimation}
@@ -122,13 +216,11 @@
 
 
 \begin{frame}{Simulation Environment}
-  % TODO: Basilisk simulation setup
-  % Performance metrics: attitude error (target: ±0.2°), position error (target: ±20m)
-  % Plots from: projects/AERO626ProjectReport/plots/
-  % Results comparison between EKF and EGMF approaches
+  % talk over images
 \end{frame}
 
 \begin{frame}{Results}
+  %% PULL IN THE ARCHIVED IMAGES from projects/AERO626ProjectReport/plots
 \end{frame}
 
 
