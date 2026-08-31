@@ -175,11 +175,28 @@
 		\multicolumn{2}{@{}X@{}}{
 			\begin{minipage}[t]{\linewidth}
 				\begin{itemize}[nosep,after=\strut, leftmargin=1em, itemsep=3pt]
+
+					\item[--] Collaborate accross a multidisciplinary, multi-university team to bridge the gap between sophisticated algorithms and real-world application for autonomous close-proximity spacecraft manipulation
+					\item[--] Utilize object detection model to identify grapple features and provide a reliable and accurate relative pose estimate to seed translational and attitude guidance algorithms
+					\item[--] Prototype an initial relative pose estimation baseline using ZED stereo camera point cloud to obtain a relative pose estimate via point cloud matching with aprior grapple fixture CAD
+					\item[--] Identify that stereo-derived point clouds are often non-representative of true grapple fixture geometry, revealing that monocular imagery retains richer geometric information for pose estimation
+					\item[--] Design an edge-matching and synthetic image generation pipeline with a simplified lighting model to solve the 2D-3D correspondence problem, enabling monocular Perspective-n-Point (PnP) pose recovery
+					\item[--] Linearize the PnP solution about an intuitive initial guess to refine pose estimates, and apply sliding-window bundle adjustment to reduce solution noise and improve estimate stability
+
+					% Path of my research: 
+					%  - Goal: Utilize object detection model to identify grapple features and provide a reliable and accurate relative pose estimate to seed translational and attitude guidance algorithms
+					%  - first developments have been relying on the Zed stereo camera point cloud to obtain a relative pose estimate via point cloud matching with aprior grapple fixture CAD
+					%  - The optically derived point cloud is often non-representative of the actual geometry. Therefore there is more information in the monocular images.
+					%  - I will choose to solve the perspective-n-point problem. Extracting edges from real image, generating a synthetic image with a simple lighting model, and performting edge matching to solve the coorespondence problem. Linearizing about a intuitive initial guess to obtain a new best estimate. Performing a bundle adjust on a sliding window of solutions to reduce solution noise.
+					
+					
+
 					% \item[--] Lead development and maintenance of computer vision capabilities on robotic testbeds in spacecraft emulation laboratory		
-					\item[--] Collaborate with a multidisciplinary team to maintain and develop close-proximity spacecraft emulation robotic testbeds to deliver quarterly, sponsor-defined technical milestones
-					\item[--] Leveraged object-detection model and stereo-camera depth information to generate relative position tracking algorithm in Robot Operating System (ROS2) to feed downstream estimation and control loops
-					\item[--] Developed real-time relative pose estimation algorithm using stereo-vision point cloud registration to facilitate autonomous robotic gripping and capture operations
-					\item[--] Performing a comparative analysis between real-time stereo and monocular relative pose estimation schemes to optimize accuracy, complexity, and computational efficiency
+
+					% \item[--] Leveraged object-detection model and stereo-camera depth information to generate relative position tracking algorithm in Robot Operating System (ROS2) to feed downstream estimation and control loops
+					% \item[--] Developed real-time relative pose estimation algorithm using stereo-vision point cloud registration to facilitate autonomous robotic gripping and capture operations
+					% \item[--] Performing a comparative analysis between real-time stereo and monocular relative pose estimation schemes to optimize accuracy, complexity, and computational efficiency
+					
 					% \item[--] Manage imagery datasets for object detection models, ROS Git repositories, and stereo camera integration on robotic platforms
 					%\item[--] Exploring non-cooperative rigid body shape recovery from stereo camera to estimate pose for relative proximity operations
 					%\item[--] Constructing a ROS2 node that performs real-time object detection and depth estimation to provide downstream controllers with relative position information
