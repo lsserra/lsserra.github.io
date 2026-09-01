@@ -154,10 +154,11 @@
 					\item[--] Proved ability to quickly learn complex software stack, responsibly use generative AI, and utilize my foundational GNC knowledge and experience to solve mission-critial problems
 					\item[--] Engineered a synthetic starfield emulation framework within a NASA TRICK/JEOD simulation to validate optical payload algorithms, data exchange, and hardware-in-the-loop (HWIL) execution
 					\item[--] Creatively defined an Image Generation reference frame to derive synthetic starfield emulator inputs (RA, Dec, roll) from a 3-2-1 Euler decomposition of the inertial-to-body attitude quaternion
-					\item[--] Built a hardware interface class to model camera exposure timing and stream exposure data over UDP socket to trigger real-time synthetic image generation, achieving ~60ms client-to-image latency
+					\item[--] Built a hardware interface class to model camera exposure timing and stream truth data over UDP socket to trigger real-time synthetic image generation, achieving ~60ms client-to-image latency
 					\item[--] Automated a manual, error-prone payload data pipeline, coupling FSW telemetry, viewing windows, and synthetic images into one reliable, sim-time-tagged process
 					% \item[--] Wrote a simple attitude determination F Prime component that propagates attitude solution with a rate source between brute force measurement updates for spacecraft commissioning
 					\item[--] Developed a C++ attitude initialization tool wrapping the TRIAD algorithm, configurable via simulation YAML, to eliminate unnecessary spacecraft slews and reduce Monte Carlo run-time
+					\item[--] Experience interpreting external attitude and time system definitions and expressions
 		% \item[--] Designed and implemented a Sensor Quality framework in C++ across 7 sensor models (IMU, PVT, magnetometer, RWA telemetry, sun sensor, star tracker) with 5 configurable degradation modes (nominal, degraded, nonsense, stale, randomized), enabling FSW fault-detection verification for the Monarch 0.1 flight software release
 		% \item[--] Increased simulation environment fidelity by implementing spherical SRP, cannonball aerodynamic drag, and point-mass Sun/Moon third-body gravity models
 		% \item[--] Modeled ~0.5s of optical payload latency between image epoch and measurement reception, integrating a delay model into the angles-only navigation (AON) measurement pipeline to improve simulation realism
