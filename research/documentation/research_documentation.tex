@@ -120,55 +120,70 @@
 \newcommand{\uRSOcC}{\vect{u}^C_{RSO/C}}
 \newcommand{\uRSOcI}{\vect{u}^I_{RSO/C}}
 
-\begin{document}
+%% ---- Pinhole camera / perspective projection ----
+\newcommand{\Kmat}{\mat{K}} % camera intrinsic matrix (bold, distinguished from the correspondence set below)
+\newcommand{\corrSet}{\mathcal{K}} % correspondence set (calligraphic, distinguished from \Kmat)
 
-\section{3D point cloud matching geometry:}
+%% ---- Small-angle multiplicative rotation error ----
+\newcommand{\rotErr}{\vect{\alpha}} % small-angle rotation error vector
+\newcommand{\skewop}[1]{\left[#1\right]_{\times}} % skew-symmetric operator
+
+%% ---- Nonlinear least-squares / Gauss-Newton estimation ----
+\newcommand{\stateVec}{\vect{x}}
+\newcommand{\dstate}{\delta\vect{x}}
+\newcommand{\dstateHat}{\delta\hat{\vect{x}}}
+\newcommand{\measBar}{\bar{\vect{z}}}
+\newcommand{\measTilde}{\tilde{\vect{z}}}
+\newcommand{\err}{\vect{e}}
+\newcommand{\Jac}{\mat{H}_x} % measurement Jacobian (bold H, distinct from scalar image height H)
+\newcommand{\stackJac}{\tilde{\mat{H}}} % stacked Jacobian
+\newcommand{\stackMeas}{\vect{Z}} % stacked linearized measurement vector
+
+\title{Relative Pose Estimation: Research Documentation}
+\author{}
+\date{8/28/26}
+
+\begin{document}
+\maketitle
+\section{Modeling}
+
+\subsection{Relative Vector Geometry: Camera and Rigid Body}
+\label{sec:geometry-3d}
 
 To transform points on a rigid body frame $B$ to points in a camera frame $C$, we can express the operation using both a 3D affine vector notation and a $4 \times 4$ homogeneous transformation matrix.
 
-\subsection{Frame Definitions}
+\subsubsection{Frame Definitions}
 
 \begin{equation}
    \mathit{C} = \{ \mathbf{C}, \hat{\vect{c}}_1, \hat{\vect{c}}_2, \hat{\vect{c}}_3 \}
 \end{equation}
-    
+
 \begin{equation}
    \mathit{B} = \{ \mathbf{B}, \hat{\vect{b}}_1, \hat{\vect{b}}_2, \hat{\vect{b}}_3 \}
 \end{equation}
 
-\subsection{Measurement Point Cloud Point Defintion}
-The point cloud derived from measurement source has $P$ number of points, which mathematically are vectors in $\mathbb{R}^3$ of each point wrt the camera origin ,$\mathbf{C}$ , expressed in the $\mathit{C}$ frame.
+\subsubsection{Measurement Point Cloud Point Definition}
+The point cloud derived from measurement source has $P$ number of points, which mathematically are vectors in $\mathbb{R}^3$ of each point wrt the camera origin, $\mathbf{C}$, expressed in the $\mathit{C}$ frame.
 
 \begin{equation}
-\pCiC , i = 1, 2, 3,... P
+\pCiC , \quad i = 1, 2, 3,\dots, P
 \end{equation}
 
-\subsection{CAD Model Point Cloud Points Defintion}
-The point cloud derived from the CAD model may not have the same number of points as the measurement itself. The CAD model point cloud has $Q$ number of points, which mathematically are vectors in $\mathbb{R}^3$ of each point wrt the CAD PCD origin ,$\mathbf{B}$ , expressed in the $\mathit{B}$ frame.
+\subsubsection{CAD Model Point Cloud Points Definition}
+The point cloud derived from the CAD model may not have the same number of points as the measurement itself. The CAD model point cloud has $Q$ number of points, which mathematically are vectors in $\mathbb{R}^3$ of each point wrt the CAD PCD origin, $\mathbf{B}$, expressed in the $\mathit{B}$ frame.
 
 \begin{equation}
-\pBjB , j = 1, 2, 3,... Q
+\pBjB , \quad j = 1, 2, 3,\dots, Q
 \end{equation}
 
-\subsection{Measurement Model As The Transformation in $\mathbb{R}^3$}
+\subsubsection{The Rigid-Body Transformation in $\mathbb{R}^3$}
 The standard 3D kinematic translation and rotation mapping is given by:
 \begin{equation}
     \pCiC = \TCB \pBjB + \pBCC
+    \label{eq:pcd-measurement-model}
 \end{equation}
 
-\subsection{The Coorespondence Problem}
-Each measurement $\pCiC$ has an assocated $\pBjB$ such that in a perfect noiseless environment, $\TCB$ and $\pBCC$ would map each $\pBjB$ to $\pCiC$ perfectly.
-
-Therefore we define the coorespondence set 
-\begin{equation}
-K = \{ (p_{i},q_{j}) \}
-\end{equation}
-
-
-Note that in the above equation point, even in a noiseless environment $p_{i}$ and $q_{j}$ are not gaurenteed to be the same point due to the discretizate sampling of the CAD model itself.
-
-
-\subsection{Generic Homogeneous Transformation in $\mathbb{R}^4$}
+\subsubsection{Generic Homogeneous Transformation in $\mathbb{R}^4$}
 By appending a scaling factor of 1 to our coordinate vectors, the rigid body mapping can be cleanly expressed as a single $4 \times 4$ matrix multiplication:
 \begin{equation}
     \begin{bmatrix}
@@ -210,36 +225,8 @@ Expanding this reveals the complete linear algebraic formulation:
     \end{bmatrix}
 \end{equation}
 
-
-\subsection{Point-to-Plane Cost Function}
-The point-to-plane error metric minimizes the squared distance along the surface normal of the target point in the camera frame $C$. 
-
-Let $\pBjB$ represent a source point in the rigid body frame $B$, $\pCiC$ represent its corresponding target point on the surface in the camera frame $C$, and $\nCiC$ be the unit surface normal vector at $\pCiC$.
-
-The objective function seeking the optimal rigid transformation matrix $\TBCtoC$ is formulated as:
-
-\begin{equation}
-    J = \sum_{K = \{ (p_{i},q_{j}) \}} \left[ \left( \pCiC - (\TCB \pBjB + \pBCC) \right) \cdot \nCiC \right]^2
-\end{equation}
-
-
-\begin{equation}
-    J = \sum_{K = \{ (p_{i},q_{j}) \}} \left[ \left( \pCiC - (\TCB \pBjB + \pBCC) \right) \right]^2
-\end{equation}
-
-\begin{equation}
-    \min_{\TCB, \pBCC} (J)
-\end{equation}
-
-Expressed compactly in homogeneous coordinates ($\mathbb{R}^4$), let $\tilde{\vect{p}}$ denote the homogeneous vector $[ \vect{p}^T, 1 ]^T$. The cost function is written as:
-
-\begin{equation}
-    E(\TBCtoC) = \sum_{i} \left[ \left( \mathbf{\Pi} \TBCtoC \tilde{\vect{p}}^B_{q_{i}/B} - \pCiC \right)^T \nCiC \right]^2
-\end{equation}
-
-Where $\mathbf{\Pi} = \begin{bmatrix} \mat{I}_{3\times3} & \vect{0}_{3\times1} \end{bmatrix}$ is a projection matrix used to drop the homogeneous scaling factor back down to $\mathbb{R}^3$ for the dot product calculation.
-
-\subsection{Laying out some uncoordinatized vectors}
+\subsubsection{Uncoordinatized Vectors}
+For reference, the frame-free (uncoordinatized) versions of the vectors above are:
 
 \begin{equation}
     \pBi
@@ -254,20 +241,276 @@ Where $\mathbf{\Pi} = \begin{bmatrix} \mat{I}_{3\times3} & \vect{0}_{3\times1} \
     \pBip
 \end{equation}
 
+\newpage
+\subsection{Relative Vector Geometry: Camera and Rigid Body --- Image Plane}
+\label{sec:geometry-image}
+
+The geometry of Section~\ref{sec:geometry-3d} describes points in $\mathbb{R}^3$. To relate that geometry to what is actually observed by a camera, we insert the image plane: a 3D point in the camera frame is projected through the pinhole camera model onto a 2D pixel-coordinate measurement.
+
+\subsubsection{Perspective (Pinhole) Projection}
+A 3D point expressed in the camera frame, $\pCiC$, is projected onto the normalized image plane by dividing through by its depth (third component), $Z$:
+
+\begin{equation}
+    \begin{bmatrix}
+        \tilde{x}_i \\
+        \tilde{y}_i \\
+        1
+    \end{bmatrix}
+    = \tilde{\vect{p}}^{\,C}_{p_i/C}
+    = \frac{1}{Z}\left\{ \pCiC \right\}
+    = \frac{1}{Z}\left\{ \TCB \pBjB + \pBCC \right\}
+    \label{eq:pinhole-projection}
+\end{equation}
+
+This is the perspective projection of the 3D rigid-body geometry from Eq.~\eqref{eq:pcd-measurement-model}.
+
+The image has width $W$ and height $H$ (in pixels), with pixel coordinates $(u,v)$ measured from the top-left corner. The normalized image-plane coordinates are mapped into pixel coordinates by the camera intrinsic matrix $\Kmat$:
+
+\begin{equation}
+    \Kmat =
+    \begin{bmatrix}
+        f & 0 & c_x \\
+        0 & f & c_y \\
+        0 & 0 & 1
+    \end{bmatrix}
+\end{equation}
+
+where $f$ is the focal length (expressed in pixels) and $(c_x, c_y)$ is the principal point. The resulting pixel-space measurement is:
+
+\begin{equation}
+    \begin{bmatrix}
+        x_{p_i/C} \\
+        y_{p_i/C} \\
+        1
+    \end{bmatrix}
+    = \bar{\vect{p}}^{\,C}_{p_i/C}
+    = \Kmat \, \tilde{\vect{p}}^{\,C}_{p_i/C}
+    \label{eq:pixel-measurement}
+\end{equation}
+
+\subsubsection{Focal Length from Horizontal Field of View}
+
+Given the horizontal field of view $\theta_H$ and image width $W$, the focal length (in pixels) can be recovered from the pinhole geometry:
+
+\begin{equation}
+    \tan\left( \frac{\theta_H}{2} \right) = \frac{W}{2f}
+\end{equation}
+
+\begin{equation}
+    f = \frac{W}{2}\left( \tan \frac{\theta_H}{2} \right)^{-1} \quad \text{[pixels]}
+\end{equation}
+
+For example, for an image resolution of $W \times H = 672 \times 376$ pixels, this relation gives the focal length in pixels directly from the sensor's horizontal FOV.
 
 \newpage
-\subsection{RSO Direction Transformation Measurement Model}
-The unit line-of-sight vector to the Resident Space Object (RSO) observed in the camera frame $C$, denoted as $\uRSOcC$, can be mapped to the inertial frame $I$ by chaining the rigid body rotation transformations. 
+\section{Using the Model to Estimate Parameters of Interest}
+
+With the geometry established, the model can now be used to estimate the unknown parameters of interest. The \emph{state} is defined to be the specific set of parameters we wish to estimate --- here, the relative pose of the camera with respect to the rigid body:
+
+\begin{equation}
+    \stateVec = \begin{bmatrix} \pBCC \\ \rotErr \end{bmatrix} \in \mathbb{R}^n
+\end{equation}
+
+where $\pBCC$ is the relative position and $\rotErr$ is a small-angle rotation error, parameterized multiplicatively about a reference (linearization-point) attitude $B'$:
+
+\begin{equation}
+    \TCB = \mat{T}^{C}_{B'} \, \mat{T}^{B'}_{B} = \mat{T}^{C}_{B'} \left[ \mat{I}_3 - \skewop{\rotErr} \right]
+\end{equation}
+
+with $\skewop{\rotErr}$ the skew-symmetric cross-product matrix of $\rotErr$. This parameterization of $\TCB$ is substituted into the geometry of Section~\ref{sec:geometry-3d} (and, by extension, Section~\ref{sec:geometry-image}) wherever $\TCB$ appears.
+
+To estimate $\stateVec$, we must: define a cost function; linearize the (nonlinear) measurement model; choose which states to estimate; and iteratively update the state estimate to minimize the cost.
+
+\subsection{Defining the Cost Function}
+
+\subsubsection{Generic Least-Squares Error (LSE) Cost Function}
+
+In general, given a measurement $\vect{z}$ and a measurement model $\vect{h}(\stateVec)$ that predicts that measurement from the current state estimate, the weighted least-squares cost function is:
+
+\begin{equation}
+    J = \frac{1}{2}\sum_{i=1}^{P} \err_i^T \err_i \, , \qquad
+    \err_i = \vect{z}_i - \vect{h}(\stateVec)
+\end{equation}
+
+The specific form of the measurement $\vect{z}_i$ and the measurement model $\vect{h}(\stateVec)$ depend on which sensing modality is used, as detailed below.
+
+\subsubsection{Applying the LSE Cost Function to Point Cloud Measurements}
+
+\textbf{Measurement:} The point cloud measurement is $\pCiC$, the $i$-th measured point expressed in the camera frame $C$ (Section~\ref{sec:geometry-3d}).
+
+\textbf{Measurement model:} The model predicts $\pCiC$ from the current state estimate using the rigid-body transformation of Eq.~\eqref{eq:pcd-measurement-model}:
+
+\begin{equation}
+    \vect{h}(\stateVec) = \mat{T}^{C}_{B'} \left[ \mat{I}_3 - \skewop{\rotErr} \right] \pBjB + \pBCC
+\end{equation}
+
+\textbf{Error:}
+\begin{equation}
+    \err_i = \pCiC - \vect{h}(\stateVec)
+\end{equation}
+
+\paragraph{Point-to-Plane Variant.} Rather than minimizing the raw 3D residual above (point-to-point), the error can instead be projected onto the unit surface normal $\nCiC$ at the target point, which penalizes only the component of the residual normal to the target surface:
+\begin{equation}
+    \err_i = \left[ \pCiC - \vect{h}(\stateVec) \right] \cdot \nCiC
+\end{equation}
+so that the corresponding point-to-plane cost function is:
+\begin{equation}
+    J = \sum_{\corrSet} \left[ \left( \pCiC - (\TCB \pBjB + \pBCC) \right) \cdot \nCiC \right]^2
+\end{equation}
+Expressed compactly in homogeneous coordinates ($\mathbb{R}^4$), let $\tilde{\vect{p}}$ denote the homogeneous vector $[ \vect{p}^T, 1 ]^T$. The point-to-plane cost function is then:
+\begin{equation}
+    E(\TBCtoC) = \sum_{i} \left[ \left( \mathbf{\Pi} \TBCtoC \tilde{\vect{p}}^B_{q_{i}/B} - \pCiC \right)^T \nCiC \right]^2
+\end{equation}
+where $\mathbf{\Pi} = \begin{bmatrix} \mat{I}_{3\times3} & \vect{0}_{3\times1} \end{bmatrix}$ is a projection matrix used to drop the homogeneous scaling factor back down to $\mathbb{R}^3$ for the dot product calculation.
+
+\subsubsection{Applying the LSE Cost Function to Image Measurements}
+
+\textbf{Measurement:} The image measurement is $\bar{\vect{p}}^{\,C}_{p_i/C}$, the $i$-th observed pixel coordinate (Section~\ref{sec:geometry-image}).
+
+\textbf{Measurement model:} The model predicts the pixel measurement by composing the rigid-body transform with the pinhole projection of Eq.~\eqref{eq:pixel-measurement}:
+
+\begin{equation}
+    \vect{h}(\stateVec) = \Kmat \, \frac{1}{Z}\left\{ \mat{T}^{C}_{B'} \left[ \mat{I}_3 - \skewop{\rotErr} \right] \pBjB + \pBCC \right\}
+\end{equation}
+
+\textbf{Error:}
+\begin{equation}
+    \err_i = \bar{\vect{p}}^{\,C}_{p_i/C} - \vect{h}(\stateVec)
+\end{equation}
+
+\subsection{The Correspondence Problem}
+
+Each measurement $\vect{z}_i$ (whether a point cloud point $\pCiC$ or an image point $\bar{\vect{p}}^{\,C}_{p_i/C}$) has an associated CAD model point $\pBjB$ such that, in a perfect noiseless environment, the true $\TCB$ and $\pBCC$ would map each $\pBjB$ to $\vect{z}_i$ exactly. In practice this pairing is unknown and must be established. We define the correspondence set
+
+\begin{equation}
+\corrSet = \{ (p_{i},q_{j}) \}
+\end{equation}
+
+Note that even in a noiseless environment, $p_{i}$ and $q_{j}$ are not guaranteed to correspond to the same physical point, due to the discretized sampling of the CAD model itself.
+
+\subsubsection{Establishing Correspondence: Point Cloud Measurements}
+For point cloud data, correspondences are typically established through one or a combination of:
+\begin{itemize}
+    \item \textbf{Nearest-neighbor matching}: for each measured point $\pCiC$, associate the closest CAD point $\pBjB$ under the current transform estimate (as in Iterative Closest Point, ICP).
+    \item \textbf{Local geometric feature descriptors}: match points using descriptors of local surface geometry (e.g.\ curvature, normals, FPFH), which are more robust to a poor initial alignment than raw nearest-neighbor search.
+    \item \textbf{RANSAC-based initial alignment}: use a robust random-sampling scheme over candidate correspondences to obtain a coarse initial transform before refining with the methods above.
+\end{itemize}
+
+\subsubsection{Establishing Correspondence: Monocular (Image) Measurements}
+For monocular image data, correspondences are typically established through one or a combination of:
+\begin{itemize}
+    \item \textbf{Keypoint detection and descriptor matching}: detect and match 2D keypoints (e.g.\ ORB, SIFT) between the image and a rendered or previously observed view of the CAD model.
+    \item \textbf{Reprojection-based matching}: project the CAD model points into the image using the current pose estimate and associate each with the nearest detected image feature.
+    \item \textbf{Robust outlier rejection}: use RANSAC (e.g.\ within a PnP solve) to reject incorrect correspondences before they are passed to the estimator.
+    \item \textbf{Moving-Edges Search with Normal-Direction Gating} 1D search along the surface normal at each synthetic (projected CAD) edge point, select candidate points with minimum reprojected pixel distance, gate real-synthetic gradient-direction difference, establish 2D-2D coorespondences between the projected CAD model edges and the observed image edges. Thus the correspondence set becomes:
+    
+\begin{center}    
+\begin{math}
+\corrSet = \{ (p_{i},q_{j}) \} \rightarrow \corrSet = \{ (\bar{\vect{p}}^{\,C}_{p_i/C},\pBjB) \}
+\end{math}
+\end{center}
+
+\end{itemize}
+
+\paragraph{Implemented Method: Moving-Edges Search with Normal-Direction Gating.}
+The reprojection-based matching strategy above is implemented as a 1D search along the surface normal at each synthetic (projected CAD) edge point, in the style of the classic RAPiD / ViSP ``moving edges'' algorithm, with an added gradient-direction gate. This is used to establish 2D--2D pixel correspondences between the projected CAD model edges and the observed image edges, which then serve as the image measurements $\bar{\vect{p}}^{\,C}_{p_i/C}$ of Section~\ref{sec:geometry-image}.
+
+\subsection{How to Solve the Nonlinear Least Squares (NLLS) Problem}
+
+Once a measurement, a measurement model, and a correspondence set have been chosen, we must still choose \emph{how} to solve the resulting NLLS problem.
+
+\subsubsection{Method 1: Gauss-Newton}
+
+Because $\vect{h}(\stateVec)$ is nonlinear in $\stateVec$ (for either the point cloud or the image measurement model above), it is linearized about an operating point $\stateVec^*$ via a Taylor series expansion:
+
+\begin{equation}
+    \vect{h}(\stateVec) \approx \vect{h}(\stateVec^*) + \Jac\Big|_{\stateVec^*} (\stateVec - \stateVec^*) + (\stateVec - \stateVec^*)^T \mat{H}_{xx}\Big|_{\stateVec^*} (\stateVec - \stateVec^*) + \text{H.O.T.}
+\end{equation}
+
+\begin{equation}
+    \dstate = \stateVec - \stateVec^*
+\end{equation}
+
+where the Jacobian of $\vect{h}$ with respect to the state (computed from whichever measurement model was selected above) is:
+
+\begin{equation}
+    \Jac =
+    \begin{bmatrix}
+        \dfrac{\partial h_1}{\partial x_1} & \dfrac{\partial h_1}{\partial x_2} & \cdots & \dfrac{\partial h_1}{\partial x_n} \\[2mm]
+        \vdots & & & \vdots \\[1mm]
+        \dfrac{\partial h_m}{\partial x_1} & \cdots & & \dfrac{\partial h_m}{\partial x_n}
+    \end{bmatrix} \in \mathbb{R}^{m \times n}
+\end{equation}
+
+Dropping the higher-order terms, the linearized residual for the $i$-th measurement is:
+
+\begin{equation}
+    \err_i = \measBar_i - \left\{ \vect{h}(\stateVec^*) + \Jac\Big|_{\stateVec^*} \dstate \right\} \triangleq \measTilde_i
+\end{equation}
+
+\paragraph{Concatenated (Stacked) Least-Squares System.} Stacking all $P$ measurements, the cost function can be written compactly as:
+
+\begin{equation}
+    J = \frac{1}{2} \left( \stackMeas - \stackJac \, \dstate \right)^T \left( \stackMeas - \stackJac \, \dstate \right)
+\end{equation}
+
+\begin{equation}
+    \stackMeas =
+    \begin{bmatrix}
+        \measTilde_1 \\
+        \vdots \\
+        \measTilde_P
+    \end{bmatrix}
+    \, , \qquad
+    \stackJac =
+    \begin{bmatrix}
+        \Jac\big|_{\stateVec^*_1} \\
+        \vdots \\
+        \Jac\big|_{\stateVec^*_P}
+    \end{bmatrix}
+    \in \mathbb{R}^{(P \cdot m) \times n}
+\end{equation}
+
+where
+\begin{align}
+    P &= \text{number of measurements} \\
+    m &= \text{size of each measurement} \\
+    n &= \text{size of the state}
+\end{align}
+
+\paragraph{Normal Equations.} The correction $\dstate$ that minimizes $J$ is found by setting $\partial J / \partial \dstate = 0$:
+
+\begin{equation}
+    \frac{\partial J}{\partial \dstate} = 0 = \left( -\stackJac \right)^T \left( \stackMeas - \stackJac \, \dstate \right)
+\end{equation}
+
+\begin{equation}
+    \left( \stackJac^T \stackJac \right) \dstate = \stackJac^T \stackMeas
+\end{equation}
+
+\begin{equation}
+    \dstateHat = \left( \stackJac^T \stackJac \right)^{-1} \left( \stackJac^T \stackMeas \right)
+\end{equation}
+
+\paragraph{Iterative Update.} The solution is refined iteratively:
+
+\begin{itemize}
+    \item If $\| \dstateHat \| < \epsilon$: the estimate has \textbf{converged}; terminate the iteration.
+    \item Otherwise: update the state estimate,
+    \begin{equation}
+        \stateVec = \stateVec^* + \dstateHat
+    \end{equation}
+    recompute the Jacobians $\Jac$ at the new linearization point, and re-solve for another $\dstateHat$.
+\end{itemize}
+
+\appendix
+\section{Appendix: RSO Direction Transformation Measurement Model}
+The unit line-of-sight vector to the Resident Space Object (RSO) observed in the camera frame $C$, denoted as $\uRSOcC$, can be mapped to the inertial frame $I$ by chaining the rigid body rotation transformations.
 
 The complete geometric measurement model is written as:
 \begin{equation}
     \uRSOcI = \TIB \TBC \uRSOcC
 \end{equation}
-
-\begin{equation}
-   \mat{K}
-\end{equation}
-
 
 \begin{equation}
    \mathit{N} = \{ \mathbf{O}, \hat{\vect{n}}_1, \hat{\vect{n}}_2, \hat{\vect{n}}_3 \}
