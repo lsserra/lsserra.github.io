@@ -151,7 +151,7 @@
 		\multicolumn{2}{@{}X@{}}{
 			\begin{minipage}[t]{\linewidth}
 				\begin{itemize}[nosep,after=\strut, leftmargin=1em, itemsep=3pt]
-					\item[--] Proved ability to quickly learn complex software stack, responsibly use generative AI, and utilize my foundational GNC knowledge and experience to solve mission-critial problems
+					\item[--] Proved ability to quickly learn complex software stack, responsibly use generative AI, and utilize my foundational GNC knowledge and experience to solve mission-critical problems
 					\item[--] Engineered a synthetic starfield emulation framework within a NASA TRICK/JEOD simulation to validate optical payload algorithms, data exchange, and hardware-in-the-loop (HWIL) execution
 					\item[--] Creatively defined an Image Generation reference frame to derive synthetic starfield emulator inputs (RA, Dec, roll) from a 3-2-1 Euler decomposition of the inertial-to-body attitude quaternion
 					\item[--] Built a hardware interface class to model camera exposure timing and stream truth data over UDP socket to trigger real-time synthetic image generation, achieving ~60ms client-to-image latency
@@ -172,32 +172,28 @@
 	%========================================
 			\begin{tabularx}{\linewidth}{ @{}l r@{} }
 		\textbf{Land, Air, and Space Robotics (LASR) Lab} & \hfill Aug 2025 - Present \\[3.75pt]
-		Graduate Research Assistant \& Computer Vision Team Lead  & \hfill  College Station, TX \\[3.75pt]
+		Computer Vision Graduate Research Assistant  & \hfill  College Station, TX \\[3.75pt]
 		\multicolumn{2}{@{}X@{}}{
 			\begin{minipage}[t]{\linewidth}
 				\begin{itemize}[nosep,after=\strut, leftmargin=1em, itemsep=3pt]
 
-					\item[--] Collaborate accross a multidisciplinary, multi-university team to bridge the gap between sophisticated algorithms and real-world application for autonomous close-proximity spacecraft manipulation
-					\item[--] Utilize object detection model to identify grapple features and provide a reliable and accurate relative pose estimate to seed translational and attitude guidance algorithms
-					\item[--] Prototyped an initial relative pose estimation baseline using ZED stereo camera point cloud to obtain a relative pose estimate via point cloud matching with aprior grapple fixture CAD
-					\item[--] Identified that stereo-derived point clouds are often non-representative of true grapple fixture geometry, revealing that monocular imagery retains richer geometric information for pose estimation
-					\item[--] Design an edge-matching and synthetic image generation pipeline with a simplified lighting model to solve the 2D-3D correspondence problem, enabling monocular Perspective-n-Point (PnP) pose recovery
-					\item[--] Linearize the PnP solution about an intuitive initial guess to refine pose estimates, and apply sliding-window bundle adjustment to reduce solution noise and improve estimate stability
+					\item[--] Contribute to a multidisciplinary robotics team to bridge the gap between algorithmic research and real-world deployment for autonomous close-proximity spacecraft robotic manipulation
+					\item[--] Developing a ROS2 simulation to flight software software stack to minimize deployment gaps across Universal Robots UR20 and mock-satellite testbeds
+					\item[--] Utilize YOLO object detection model to idenity grapple features and crop incoming imagery to the target region of interest, simplifying point cloud and image processing for relative pose estimation
+					\item[--] Identified that ICP-based relative pose tracking with known grapple geometries is highly sensitive to false correspondences and local minimum convergence in stereo point clouds
+					\item[--] Discovered that stereo-derived point clouds fail to accurately represent true fixture geometry, proving that monocular imagery retains richer geometric information for pose estimation
+					\item[--] Designed an edge-matching and simple synthetic image generation pipeline to solve the 2D-3D correspondence problem, increasing robustness of monocular Perspective-n-Point (PnP) pose tracking	
 
+					% \item[--] Linearize the PnP solution about an intuitive initial guess to refine pose estimates, and apply sliding-window bundle adjustment to reduce solution noise and improve estimate stability
 					% Path of my research: 
 					%  - Goal: Utilize object detection model to identify grapple features and provide a reliable and accurate relative pose estimate to seed translational and attitude guidance algorithms
 					%  - first developments have been relying on the Zed stereo camera point cloud to obtain a relative pose estimate via point cloud matching with aprior grapple fixture CAD
 					%  - The optically derived point cloud is often non-representative of the actual geometry. Therefore there is more information in the monocular images.
 					%  - I will choose to solve the perspective-n-point problem. Extracting edges from real image, generating a synthetic image with a simple lighting model, and performting edge matching to solve the coorespondence problem. Linearizing about a intuitive initial guess to obtain a new best estimate. Performing a bundle adjust on a sliding window of solutions to reduce solution noise.
-					
-					
-
 					% \item[--] Lead development and maintenance of computer vision capabilities on robotic testbeds in spacecraft emulation laboratory		
-
 					% \item[--] Leveraged object-detection model and stereo-camera depth information to generate relative position tracking algorithm in Robot Operating System (ROS2) to feed downstream estimation and control loops
 					% \item[--] Developed real-time relative pose estimation algorithm using stereo-vision point cloud registration to facilitate autonomous robotic gripping and capture operations
 					% \item[--] Performing a comparative analysis between real-time stereo and monocular relative pose estimation schemes to optimize accuracy, complexity, and computational efficiency
-					
 					% \item[--] Manage imagery datasets for object detection models, ROS Git repositories, and stereo camera integration on robotic platforms
 					%\item[--] Exploring non-cooperative rigid body shape recovery from stereo camera to estimate pose for relative proximity operations
 					%\item[--] Constructing a ROS2 node that performs real-time object detection and depth estimation to provide downstream controllers with relative position information
@@ -218,12 +214,13 @@
 		\multicolumn{2}{@{}X@{}}{
 			\begin{minipage}[t]{\linewidth}
 				\begin{itemize}[nosep,after=\strut, leftmargin=1em, itemsep=3pt]
+
 					\item[--] Proved ability to work within a multi-language software framework, dive into mathematical theory, develop within a Git CI/CD workflow, and contribute meaningfully to a GNC team
 					\item[--] Improved missile navigation regression test framework that injects simulated off-nominal sensor behavior by adding real flight sensor data playback with semi-manual validation of GPS innovation errors
 					\item[--] Quantified ACS valve on/off pressure lag across two valve families, characterizing delay behavior by tubing length and geometry to increase simulation fidelity
 					\item[--] Designed a command sequence to maximize observed valve delay across the operational ACS tank pressure range, improving the utility and effectiveness of ACS testing
 					\item[--] Analyzed telemetry from IMU calibration procedure and C++ navigation software to create an independent Inertial Navigation System algorithm in an attempt to explain accumulation of velocity-error
-					\item[--] Assisted in the generation of optimal trajectories and creation of a thrust vector control autopilot to supply customer with impact results from an end-to-end Monte Carlo analysis
+					% \item[--] Assisted in the generation of optimal trajectories and creation of a thrust vector control autopilot to supply customer with impact results from an end-to-end Monte Carlo analysis
 					%\item[--] Created an attitude control system (ACS) trade study simulation tool to validate spin and orientation requirements across physical features and controller configurations
 				 	%\item[--] Developed an attitude control system (ACS) trade study simulation tool, applied it to tune controller deadbands and validate adherence to roll rate and orientation requirements
 					%\item[--] Developed version-controlled C++ automated flight termination unit SWIL package, supplying customer with 15x real-time Core Autonomous Safety Software mission rules development
@@ -236,40 +233,40 @@
 			\end{minipage}
 	}
 	\end{tabularx}
-	%========================================
-	% MSAT
-	%========================================
-	\begin{tabularx}{\linewidth}{ @{}l r@{} }
-		\textbf{Missouri S\&T Satellite Research Team (M-SAT)} & \hfill Aug 2022 - May 2025 \\[3.75pt]
-		Co-Chief Engineer and GNC Subsystem Member & \hfill  Rolla, MO \\[3.75pt]
-		%Missouri University of Science \& Technology & \hfill  Rolla, MO \\[3.75pt]
-		\multicolumn{2}{@{}X@{}}{
-			\begin{minipage}[t]{\linewidth}
-				\begin{itemize}[nosep,after=\strut, leftmargin=1em, itemsep=3pt]
-					%\item[--] Two active missions, funded by NASA and Air Force Research Laboratory 
-					%\item[--] Integrating to Chief Engineer of our M3 mission (set to launch January 2024)
-					%\item[--] Lead communication for team of 20 
-					%\item[--] Co-Chief Engineer of close-proximity satellite mission
-					%\item[--] Communicate with nine subsystem leads to ensure proper direction and progression of satellite development
-					%\item[--] Built wrapper between flight software and NASA 42 simulator to validate close-proximity GNC algorithms
-					\item[--] Managed Git repositories and NASA 42 simulator integration for close-proximity GNC team
-					%\item[--] Contributed to the development of cubesat PCB and embedded software leading up to teams first launch spring 2024
-					%\item[--] Conducted system level testing to verify final hardware and software before flight model integration of team's first launched satellite
-					%\item[--] Presenting university spacecraft NGC algorithm verification using NASA 42 simulator poster at spring 2025 AAS Rocking Mountain Conference
-					%\item[--]  Built C++ software library to encompass satellite's mission operations
-					%\item[--] Troubleshot SPI, I2C, and USART communication on PCB's to develop interface between microcontrollers and devices
-					\item[--] Troubleshot circuit board communication protocols to develop interface between microcontrollers and devices on first launched satellite
-					%\item[--] Developing on-site ground station to communicate with our satellite on orbit and organize downlinked data
-					%\item[--] Program sensor and circuitry board communication throughout satellite
-					%\item[--] Building software flow (start to end) of autonomous satellite's mission with team
-					%\item[--] Conducted pulse density modulation tests on the propulsion system to determine magnitude of thrust for NGC algorithm  
-					%\item[--] Experience in propulsion, command and data handling, and NGC 	
-					%\item[--] Used global simulation program to verify required distance from ISS was met before start of mission
-					%\item[--] Use LaTeX to create proper documentation
-				\end{itemize}
-			\end{minipage}
-	}
-	\end{tabularx}
+	% %========================================
+	% % MSAT
+	% %========================================
+	% \begin{tabularx}{\linewidth}{ @{}l r@{} }
+	% 	\textbf{Missouri S\&T Satellite Research Team (M-SAT)} & \hfill Aug 2022 - May 2025 \\[3.75pt]
+	% 	Co-Chief Engineer and GNC Subsystem Member & \hfill  Rolla, MO \\[3.75pt]
+	% 	%Missouri University of Science \& Technology & \hfill  Rolla, MO \\[3.75pt]
+	% 	\multicolumn{2}{@{}X@{}}{
+	% 		\begin{minipage}[t]{\linewidth}
+	% 			\begin{itemize}[nosep,after=\strut, leftmargin=1em, itemsep=3pt]
+	% 				%\item[--] Two active missions, funded by NASA and Air Force Research Laboratory 
+	% 				%\item[--] Integrating to Chief Engineer of our M3 mission (set to launch January 2024)
+	% 				%\item[--] Lead communication for team of 20 
+	% 				%\item[--] Co-Chief Engineer of close-proximity satellite mission
+	% 				%\item[--] Communicate with nine subsystem leads to ensure proper direction and progression of satellite development
+	% 				%\item[--] Built wrapper between flight software and NASA 42 simulator to validate close-proximity GNC algorithms
+	% 				\item[--] Managed Git repositories and NASA 42 simulator integration for close-proximity GNC team
+	% 				%\item[--] Contributed to the development of cubesat PCB and embedded software leading up to teams first launch spring 2024
+	% 				%\item[--] Conducted system level testing to verify final hardware and software before flight model integration of team's first launched satellite
+	% 				%\item[--] Presenting university spacecraft NGC algorithm verification using NASA 42 simulator poster at spring 2025 AAS Rocking Mountain Conference
+	% 				%\item[--]  Built C++ software library to encompass satellite's mission operations
+	% 				%\item[--] Troubleshot SPI, I2C, and USART communication on PCB's to develop interface between microcontrollers and devices
+	% 				\item[--] Troubleshot circuit board communication protocols to develop interface between microcontrollers and devices on first launched satellite
+	% 				%\item[--] Developing on-site ground station to communicate with our satellite on orbit and organize downlinked data
+	% 				%\item[--] Program sensor and circuitry board communication throughout satellite
+	% 				%\item[--] Building software flow (start to end) of autonomous satellite's mission with team
+	% 				%\item[--] Conducted pulse density modulation tests on the propulsion system to determine magnitude of thrust for NGC algorithm  
+	% 				%\item[--] Experience in propulsion, command and data handling, and NGC 	
+	% 				%\item[--] Used global simulation program to verify required distance from ISS was met before start of mission
+	% 				%\item[--] Use LaTeX to create proper documentation
+	% 			\end{itemize}
+	% 		\end{minipage}
+	% }
+	% \end{tabularx}
 	
 	%========================================
 	% NG
@@ -320,14 +317,14 @@
 		
 		
 			%----------------------------------------------------------------------------------------
-	%	EDUCATION	%----------------------------------------------------------------------------------------
+	%	EDUCATION	%---------------------------------------------------------------------------------------- 
 	\section{Education}
 	\begin{tabularx}{\linewidth}{@{}l X@{}}	
 
 		\textbf{Texas A\&M University} 				& \hfill Fall 2025 - Spring 2027 \\		
 		Pursuing M.S. in Aerospace Engineering Under Dr. Manoranjan Majji							& \hfill \textbf{GPA: 4.0} \\
-		\multicolumn{2}{c}{\emph{Optimal Estimation of Dynamic Systems, Advanced Dynamics, Multimodal Computer Vision, Optimal Control, Orbital Mechanics}} \\ [0.18cm]
- 	
+		\multicolumn{2}{c}{\emph{Optimal Estimation of Dynamic Systems, Advanced Dynamics, Multimodal Computer Vision}} \\ [0.0cm]
+		\multicolumn{2}{c}{\emph{Optimal Control, Orbital Mechanics}} \\ [0.18cm]
 		\textbf{Missouri University of Science \& Technology} 	& \hfill Fall 2022 - Spring 2025 \\		
 		B.S. in Aerospace Engineering 						& \hfill \textbf{GPA: 3.82} \\
 		\multicolumn{2}{c}{\emph{Orbital Mechanics II, Orbit Determination and Estimation, Optimal Control}} \\ [0.18cm]
@@ -345,8 +342,8 @@
 	%----------------------------------------------------------------------------------------
 	\section{Skills}
 	\begin{tabularx}{\linewidth}{l l l}
-		- Object-Oriented Programming & \hspace{1em}- Multi-Respository Git Workflow & \hspace{1em}- C++ \vspace{3pt}\\
-		- Pub/Sub Messaging & \hspace{1em}- Mathematical Troubleshooting & \hspace{1em}- Python\vspace{3pt}\\  
+		- Object-Oriented Programming & \hspace{1em}- Multi-Respository CI/CD Git Workflow & \hspace{1em}- C++/Python \vspace{3pt}\\
+		- Pub/Sub Messaging & \hspace{1em}- Mathematical Troubleshooting & \hspace{1em}- ROS2\vspace{3pt}\\  
 		- Attitude Interpretation & \hspace{1em}- NASA TRICK / JEOD Simulation Development   & \hspace{1em}- Linux\\
 	\end{tabularx}
 	%\center{\footnotesize Last updated: \today}
