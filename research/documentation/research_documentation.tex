@@ -169,12 +169,30 @@ The point cloud derived from measurement source has $P$ number of points, which 
 \pCiC , \quad i = 1, 2, 3,\dots, P
 \end{equation}
 
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{../../presentations/panel_interview/images/research/diags/PCD_MEAS_ONLY.png}
+    \caption{Measurement-derived point cloud, expressed in the camera frame $C$.}
+    \label{fig:pcd-meas-only}
+\end{figure}
+
+
+\pagebreak
+
+
 \subsubsection{CAD Model Point Cloud Points Definition}
 The point cloud derived from the CAD model may not have the same number of points as the measurement itself. The CAD model point cloud has $Q$ number of points, which mathematically are vectors in $\mathbb{R}^3$ of each point wrt the CAD PCD origin, $\mathbf{B}$, expressed in the $\mathit{B}$ frame.
 
 \begin{equation}
 \pBjB , \quad j = 1, 2, 3,\dots, Q
 \end{equation}
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{../../presentations/panel_interview/images/research/diags/PCD_CAD_GEOM.png}
+    \caption{CAD-model point cloud, expressed in the rigid-body frame $B$.}
+    \label{fig:pcd-cad-geom}
+\end{figure}
 
 \subsubsection{The Rigid-Body Transformation in $\mathbb{R}^3$}
 The standard 3D kinematic translation and rotation mapping is given by:
@@ -224,6 +242,13 @@ Expanding this reveals the complete linear algebraic formulation:
         1
     \end{bmatrix}
 \end{equation}
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{../../presentations/panel_interview/images/research/diags/PCD_MEAS_MODEL.png}
+    \caption{Rigid-body transformation mapping CAD points $\pBjB$ into the measurement point cloud $\pCiC$.}
+    \label{fig:pcd-meas-model}
+\end{figure}
 
 \subsubsection{Uncoordinatized Vectors}
 For reference, the frame-free (uncoordinatized) versions of the vectors above are:
@@ -412,8 +437,6 @@ For monocular image data, correspondences are typically established through one 
 
 \end{itemize}
 
-\paragraph{Implemented Method: Moving-Edges Search with Normal-Direction Gating.}
-The reprojection-based matching strategy above is implemented as a 1D search along the surface normal at each synthetic (projected CAD) edge point, in the style of the classic RAPiD / ViSP ``moving edges'' algorithm, with an added gradient-direction gate. This is used to establish 2D--2D pixel correspondences between the projected CAD model edges and the observed image edges, which then serve as the image measurements $\bar{\vect{p}}^{\,C}_{p_i/C}$ of Section~\ref{sec:geometry-image}.
 
 \subsection{How to Solve the Nonlinear Least Squares (NLLS) Problem}
 
