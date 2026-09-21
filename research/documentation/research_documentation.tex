@@ -743,37 +743,6 @@ Whichever method is used above, the result is only a \emph{candidate} correspond
 
 At its core, each RANSAC iteration solves a parameter estimation problem: it draws a minimal correspondence subset and solves for the rigid-body transformation via the closed-form OLAE result of Section~\ref{sec:closed-form} (itself an application of the linear least-squares result of Section~\ref{sec:linear-lse}). RANSAC must be seeded with an initial correspondence set (Section~\ref{sec:correspondence-problem}) --- it refines a correspondence set, it does not create one from raw measurements. The output of RANSAC is the \textbf{consensus set}, together with the parameter estimate obtained over it. The author's notes below lay out this connection explicitly.
 
-\begin{authornotes}{9/18/26}
-The prior 3 pages describes the OLAE, which is machinery to solve the absolute orientation problem, manually.
-
-Surrounding absolute orientation solvers lies the problem of: establishing the correspondence between two point sets of arbitrary dimension.
-
-\begin{equation}
-    \pBjB, \ j = 1,2,3,\dots,Q \ \in N_Q \qquad \qquad \pCiC, \ i = 1,2,3,\dots,P \ \in N_P
-\end{equation}
-
-Given a measurement $\pCiC \in N_P$ and a model $\pBjB \in N_Q$
-
-then establish randomly an initial minimal correspondence set
-
-\begin{equation}
-    \corrSet_1 = \{ (\pCiC, \pBjB) \} \ \in n_1 \, , \qquad n_1 = 3
-\end{equation}
-
-\begin{equation}
-    \left[ \left( \qCB, \, \pBCC \right)_{1}, \ J_1, \ e_1 \right] = \mathrm{OLAE}(\corrSet_1)
-\end{equation}
-(orientation solution, cost, residual errors)
-
-consensus set $\rightarrow$ $S_1 = \mathrm{determineConsensusSet}(\corrSet_1, \, \text{residual\_thresh}, \, e_1)$
-\end{authornotes}
-
-\bigskip
-\noindent\textit{The author's first pass at growing this correspondence set iteratively --- comparing costs $J_1, J_2, \dots$ and tracking a running best correspondence set $\corrSet_{\text{best}}$ --- was superseded the next day by the cleaner formulation below, which follows the standard RANSAC template and is reproduced here in place of the earlier draft.}
-
-\smallskip
-\noindent\textit{RANSAC exposes exactly three tunable parameters --- the inlier-count threshold $t$, the residual threshold $e$, and a maximum iteration count --- each made explicit in the ``Seed RANSAC'' step below, and returns the consensus set $S_k^*$ upon termination.}
-\bigskip
 
 \begin{authornotes}{9/18/26 (cont.)}
 One first needs to establish an initial guess of the correspondence set to even seed a RANSAC algorithm.
