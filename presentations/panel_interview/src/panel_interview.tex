@@ -1,0 +1,317 @@
+\documentclass[10pt]{beamer}
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usecolortheme{aggie}
+
+\usepackage{appendixnumberbeamer}
+\usepackage{booktabs}
+\usepackage{xspace}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+
+
+\title{Portfolio Presentation}
+\subtitle{Panel Interview}
+\date{}
+\author{Luke Serrano}
+\institute{}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}{Agenda}
+  \setbeamertemplate{section in toc}[sections numbered]
+  \tableofcontents
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% PERSONAL INTRODUCTION %%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{About Me}
+
+\begin{frame}{Personal Introduction}
+    \centering
+    \vspace*{0cm}   % vertical nudge  (+ down / - up)   -- tune
+    \hspace*{0cm}   % horizontal nudge (+ right / - left) -- tune
+    \includegraphics[width=1.0\linewidth]{../images/personal_intro/mapUS.png}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% PRIOR WORK EXPERIENCE %%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Prior Work Experience}
+% --- Sandia ---
+\subsection{Sandia National Laboratories}
+
+% --- Sandia: Overview knobs (tune these) ---
+\def\sandiaOverviewTextWidth{1.0\textwidth} % width reserved for bullet text (shrink if image grows / overlaps)
+\def\sandiaTextXShift{-0.4cm}                 % horizontal shift of text block (negative = left)
+\def\sandiaTextYShift{10.3cm}                  % vertical shift of text block (positive = up)
+
+\def\sandiaImgWidth{7.5cm}                    % rendered width of hyp_gb_traj.png
+\def\sandiaImgXShift{-0.3cm}                  % horizontal offset from frame's bottom-right corner (negative = inward)
+\def\sandiaImgYShift{0.8cm}                   % vertical offset from frame's bottom edge (positive = upward) -- clears footer bar
+
+\def\sandiaImgTwoWidth{4cm}                    % rendered width of sandia_coworkers.jpeg
+\def\sandiaImgTwoXShift{0.3cm}                 % horizontal offset from frame's bottom-left corner (positive = inward)
+\def\sandiaImgTwoYShift{0.9cm}                  % vertical offset from frame's bottom edge (positive = upward) -- clears footer bar
+
+\begin{frame}{Sandia: Overview}
+  \hspace*{\sandiaTextXShift}%
+  \raisebox{\sandiaTextYShift}{%
+  \begin{minipage}[t]{\sandiaOverviewTextWidth}
+    \begin{itemize}
+      \item \textbf{CPS / MACH-TB Program:} Army / Navy Long Range (1,700 - 2,200 mi range) hypersonic glide body
+      \begin{itemize}
+      \item 2-3 flights per year \textbf{\textbar}\ 8 person GNC and embedded software team
+      \end{itemize}
+      \item \textbf{Platform}: IMU + GPS Nav, 6 nozzle cold gas ACS
+      \item \textbf{Software Ecosystem}
+        \begin{itemize}
+          \item Monorepo \textbf{\textbar}\ C++ Pub/Sub FSW \textbf{\textbar}\ XML Telemetry Definitions + Auto-Generated Messages \textbf{\textbar}\ MATALB / Simulink Simulation \textbf{\textbar}\ TLM and Simulation Analysis Tools \textbf{\textbar}\ JAVA Vehicle Ground Software
+        \end{itemize}
+    \end{itemize}
+  \end{minipage}%
+  }
+  
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=south east, xshift=\sandiaImgXShift, yshift=\sandiaImgYShift]
+      at (current page.south east)
+      {\includegraphics[width=\sandiaImgWidth]{../images/sandia/hyp_gb_traj.png}};
+  \end{tikzpicture}
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=south west, xshift=\sandiaImgTwoXShift, yshift=\sandiaImgTwoYShift]
+      at (current page.south west)
+      {\includegraphics[width=\sandiaImgTwoWidth]{../images/sandia/sandia_coworkers.jpeg}};
+  \end{tikzpicture}
+\end{frame}
+
+
+
+% --- Firefly ---
+\subsection{Firefly Aerospace}
+
+% --- Firefly: Overview knobs (tune these; independent of the Sandia knobs above) ---
+\def\fireflyOverviewTextWidth{1.0\textwidth} % width reserved for bullet text (shrink if image grows / overlaps)
+\def\fireflyTextXShift{-0.4cm}                % horizontal shift of text block (negative = left)
+\def\fireflyTextYShift{10.3cm}                % vertical shift of text block (positive = up)
+
+\def\fireflyImgWidth{3cm}                     % rendered width of elytra_img.jpeg
+\def\fireflyImgXShift{-0.cm}                 % horizontal offset from frame's bottom-right corner (negative = inward)
+\def\fireflyImgYShift{0.8cm}                  % vertical offset from frame's bottom edge (positive = upward) -- clears footer bar
+
+\def\fireflyImgTwoWidth{3.cm}                % rendered width of firefly_coworkers.png
+\def\fireflyImgTwoXShift{-0.2cm}               % horizontal offset from frame's bottom-left corner (positive = inward)
+\def\fireflyImgTwoYShift{0.0cm}               % vertical offset from frame's bottom edge (positive = upward) -- clears footer bar
+
+\def\fireflyImgThreeWidth{6.cm}              % rendered width of ff_maunfarure_floor.png
+\def\fireflyImgThreeYShift{0.5cm}             % vertical offset from frame's bottom edge (positive = upward) -- clears footer bar
+
+\begin{frame}{Firefly: Overview}
+  \hspace*{\fireflyTextXShift}%
+  \raisebox{\fireflyTextYShift}{%
+  \begin{minipage}[t]{\fireflyOverviewTextWidth}
+    \begin{itemize}
+      \item \textbf{Elytra Satellite \textbar\ Mission:} Responsive Space Relative Proximity Ops Demonstration
+      \item \textbf{Validating internal FSW:} Approaching TRR
+      \item \textbf{Exposure} ground ops vs algorithms design decisions, building FSW for on orbit ops
+      \item \textbf{Software Ecosystem:}
+          NASA F Prime C++ FSW \textbf{\textbar}\ \\NASA TRICK / JEOD C++ Simulation \textbf{\textbar}\ \\Python TLM and Simulation Analysis Tools \textbf{\textbar}\ \\F Prime GDS Ground Software
+        
+    \end{itemize}
+  \end{minipage}%
+  }
+  
+
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=south east, xshift=\fireflyImgXShift, yshift=\fireflyImgYShift]
+      at (current page.south east)
+      {\includegraphics[width=\fireflyImgWidth]{../images/firefly/firefly_coworkers.png}};
+  \end{tikzpicture}
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=south west, xshift=\fireflyImgTwoXShift, yshift=\fireflyImgTwoYShift]
+      at (current page.south west)
+      {\includegraphics[width=\fireflyImgTwoWidth]{../images/firefly/elytra_img.jpeg}};
+  \end{tikzpicture}
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=south, yshift=\fireflyImgThreeYShift]
+      at (current page.south)
+      {\includegraphics[width=\fireflyImgThreeWidth]{../images/firefly/ff_maunfarure_floor.png}};
+  \end{tikzpicture}
+\end{frame}
+
+\subsection{Software Architecture}
+\begin{frame}{FSW + Simulation : Sandia}
+    \centering
+    \vspace*{0cm}   % vertical nudge  (+ down / - up)   -- tune
+    \hspace*{0cm}   % horizontal nudge (+ right / - left) -- tune
+    \includegraphics[width=1.0\linewidth]{../images/sandia/Sandia_GNC_Arch.png}
+\end{frame}
+\begin{frame}{FSW + Simulation : Firefly}
+    \centering
+    \vspace*{1cm}   % vertical nudge  (+ down / - up)   -- tune
+    \hspace*{-2cm}   % horizontal nudge (+ right / - left) -- tune
+    \includegraphics[width=1.3\linewidth]{../images/firefly/FF_GNC_Arch.png}
+\end{frame}
+\begin{frame}{FSW Support Software}
+    \centering
+    \vspace*{0cm}   % vertical nudge  (+ down / - up)   -- tune
+    \hspace*{0cm}   % horizontal nudge (+ right / - left) -- tune
+    \includegraphics[width=1.0\linewidth]{../images/firefly/Arch_Surrounding_FSW_&_SIM.png}
+    % TODO: remove all the words... these should be verbalized rather than vizualized
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% TECHNICAL PROJECTS %%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Technical Projects}
+
+% --- AERO 626: Lunar Lander Pose Estimation ---
+\subsection{Lunar Lander Pose Estimation Project}
+
+\begin{frame}{Problem Statement}
+  % TODO: Pull NASA Moon-Base statement?
+  % TALK OVER IMAGES NO WORDS
+\end{frame}
+
+\begin{frame}{Coordinate Frames Selection}
+  \includegraphics[width=1.\linewidth]{../images/lunar_lander_prj/Lunar_lankmark_geom.png}
+  % TODO: explain MCMF reference frame choice
+\end{frame}
+
+\begin{frame}{Landmark Measurement Model}
+  %  put image in upper right hand corner but smaller.. to talk over math!
+  % TODO: Optical landmark detection and measurement generation
+  % TALK OVER MATH NO WORDS
+\end{frame}
+
+\begin{frame}{Full State Definition \& Dynamics}
+  % TODO: mathematically define the states desired to be known at successive points in time
+  % define dynamics
+  % CHOOSE to only model Moon Newtonian gravity as Force acting on SC 
+  % TALK OVER MATH NO WORDS
+\end{frame}
+
+\begin{frame}{Estimation Algorithm Design}
+  % CHOOSE to use MEKF to estimate attitude states.
+  % CHOOSE to use EKF to estimate translational states
+  % TALK OVER MATH NO WORDS
+\end{frame}
+
+
+\begin{frame}{MEKF: Multiplicative Error Quaternion Formulation}
+  % TODO: Error quaternion kinematics
+  % Design choices: error encapsulated in body frame
+  % CHOOSE Gyroscope model and bias representation
+  % Math from: projects/AERO626ProjectReport/main.tex Section "Multiplicative Error Quaternion Formulation"
+  % Equations: \ref{eq:errQuatDef}, \ref{eq:mekfVecKin}, \ref{eq:mekfStateSpace}
+  %  MEKF: State Space Formulation
+  % TALK OVER MATH NO WORDS
+\end{frame}
+
+\begin{frame}{EKF: Translational State Estimation}
+  % TODO: Add dynamics Jacobians
+\end{frame}
+
+\begin{frame}{Full State-Space Representaion}
+  % TODO: Add dynamics Jacobians
+\end{frame}
+
+
+\begin{frame}{Simulation Environment}
+  % talk over images
+\end{frame}
+
+\begin{frame}{Results}
+  %% PULL IN THE ARCHIVED IMAGES from projects/AERO626ProjectReport/plots
+\end{frame}
+
+
+
+% --- LASR Lab ---
+\section{TAMU Land, Air, and Space Robotics (LASR) Lab}
+\begin{frame}{LASR: Overview}
+  % TODO: Research focus, contributions
+\end{frame}
+
+\begin{frame}{LASR: Computer Vision}
+  % TODO: Computer vision applications, techniques
+\end{frame}
+
+\subsection{Real-Time Target Tracking Algorithm}
+\begin{frame}{Stereo-Vision Camera Integration \& Target Tracking}
+  % TODO: Sensor characteristics and calibration
+  % Real-time tracking pipeline
+\end{frame}
+
+\subsection{Relative Pose Estimation: 3D Point Cloud}
+
+\begin{frame}{Problem Statement}
+  % TODO: Create CANVA diag. relative pose est. geometry
+  % assumptions
+  % geometry of problem
+\end{frame}
+
+\begin{frame}{Probelm Geometry: Point Cloud Measurement}
+  \includegraphics[width=1.2\linewidth]{../images/research/diags/PCD_MEAS_ONLY.png}
+\end{frame}
+
+\begin{frame}{Probelm Geometry: Model CAD Point Cloud}
+  \includegraphics[width=1.2\linewidth]{../images/research/diags/PCD_CAD_GEOM.png}
+\end{frame}
+
+\begin{frame}{Probelm Geometry: Measurement Model}
+  \includegraphics[width=1.2\linewidth]{../images/research/diags/PCD_MEAS_MODEL.png}
+\end{frame}
+
+\begin{frame}{Point-Cloud Registration Approach}
+  % TODO: ICP-based methods
+  % Math: point-to-point, point-to-plane cost functions
+  % Optimization strategy
+  % Reference: research/documentation/research_documentation.tex
+\end{frame}
+
+
+\subsection{Relative Pose Estimation: Monocular}
+\begin{frame}{Why a Monocular Approach?}
+  % TODO: Create CANVA diag. relative pose est. geometry
+  % TODO: pull in PCD degeneracy at smaller grappling points pictures
+  % - cheaper, 
+\end{frame}
+
+\begin{frame}{Monocular Point-n-Perspective (PnP) Approach}
+  % TODO: PnP problem formulation
+  % Comparison with point-cloud registration
+  % Trade-offs and applicability
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% APPLICATION AT FIREFLY %%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Skillset Applied at Firefly}
+\subsection{Synthetic Starfield Image Generator GNC Integration}
+\begin{frame}{Problem At Hand}
+  % TODO: Create Geometry diag of problem (CANVA)
+  % explain open-loop tracking slew -> closed-loop AON tracking
+  % add Starlite inputs
+  % 
+  \hspace{0pt}
+  \includegraphics[width=1.\linewidth]{../images/firefly/FF_rso_geom.png}
+
+  
+\end{frame}
+
+\begin{frame}{Attitude Interpretation and Image Generation Frame Definition}
+
+\end{frame}
+
+
+
+\begin{frame}{Preparations for HWIL Optical Payload Testing}
+  % TODO: create block diagram of HWIL (CANVA)
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% FIT FOR ROLE %%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Concluding Remarks}
+
+\begin{frame}{Why I Am Fit For This Role}
+  
+\end{frame}
+
+\end{document}

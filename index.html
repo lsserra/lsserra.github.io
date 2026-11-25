@@ -1,130 +1,421 @@
----
-layout: default
----
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Luke Serrano</title>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<!-- Hero Profile Section -->
-<section class="hero">
-  <div class="hero-body">
-    <div class="container is-max-desktop">
-      <div class="columns is-vcentered">
-        <div class="column">
-          <h1 class="title is-1 publication-title">Hello, I'm {{ site.author.name }}</h1>
-          <div class="is-size-5 publication-authors">
-            <span class="author-block">Graduate Research Assistant</span>
-          </div>
-          <div class="is-size-5 publication-authors">
-            <span class="author-block">Land, Air, and Space Robotics (LASR) Lab — Texas A&M University</span>
-          </div>
-          
-          <!-- Social Icons / Contact Badges -->
-          <div class="column has-text-centered">
-            <div class="publication-links">
-              <span class="link-block">
-                <a href="mailto:{{ site.email }}" class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon"><i class="fas fa-envelope"></i></span>
-                  <span>Email</span>
-                </a>
-              </span>
-              <span class="link-block">
-                <a href="https://linkedin.com{{ site.social.linkedin }}" class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon"><i class="fab fa-linkedin"></i></span>
-                  <span>LinkedIn</span>
-                </a>
-              </span>
-              <span class="link-block">
-                <a href="https://github.com{{ site.social.github }}" class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon"><i class="fab fa-github"></i></span>
-                  <span>GitHub</span>
-                </a>
-              </span>
-            </div>
-          </div>
+    :root {
+      --bg: #faf9f6;
+      --text: #1a1a1a;
+      --muted: #555;
+      --accent: #1a3a5c;
+      --accent-light: #2c5f8a;
+      --rule: #d8d3cc;
+      --card-bg: #f3f0eb;
+      --max-w: 760px;
+    }
 
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(250,249,246,0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--rule);
+      padding: 0 2rem;
+    }
+    nav ul {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0.85rem 0;
+    }
+    nav a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: var(--accent); }
+
+    /* ── LAYOUT ── */
+    main {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 1.5rem 6rem;
+    }
+
+    section { padding: 4rem 0; border-top: 1px solid var(--rule); }
+    section:first-of-type { border-top: none; }
+
+    h1 {
+      font-family: 'Crimson Pro', serif;
+      font-size: 2.6rem;
+      font-weight: 600;
+      color: var(--accent);
+      line-height: 1.15;
+      margin-bottom: 0.6rem;
+    }
+    h2 {
+      font-family: 'Crimson Pro', serif;
+      font-size: 1.7rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.01em;
+    }
+    h3 {
+      font-family: 'Crimson Pro', serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+    p { color: var(--muted); margin-bottom: 0.9rem; }
+    a { color: var(--accent-light); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    hr { border: none; border-top: 1px solid var(--rule); margin: 2rem 0; }
+
+    /* ── INTRO ── */
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1fr 148px;
+      gap: 2.5rem;
+      align-items: start;
+      padding-top: 3.5rem;
+    }
+    .intro-grid img {
+      width: 148px;
+      height: 148px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--rule);
+    }
+    .intro-placeholder {
+      width: 148px;
+      height: 148px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      border: 3px solid var(--rule);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.4;
+    }
+    .links-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.2rem;
+    }
+    .links-row a {
+      display: inline-block;
+      padding: 0.28rem 0.75rem;
+      border: 1px solid var(--accent-light);
+      border-radius: 3px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      transition: background 0.15s, color 0.15s;
+    }
+    .links-row a:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* ── EDUCATION ── */
+    .edu-entry { margin-bottom: 1.6rem; }
+    .edu-entry strong { color: var(--text); font-weight: 500; }
+    .edu-entry .degree { font-style: italic; color: var(--muted); }
+    .edu-entry .year {
+      font-size: 0.82rem;
+      color: #888;
+      margin-left: 0.4rem;
+    }
+
+    /* ── THESIS ── */
+    .thesis-card {
+      background: var(--card-bg);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1.5rem;
+    }
+    .thesis-card .meta {
+      font-size: 0.82rem;
+      color: #888;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .thesis-card p { margin-bottom: 0.5rem; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.8rem; }
+    .pill {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.72rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── PROJECTS ── */
+    .project-card {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 1.2rem;
+      align-items: start;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--rule);
+    }
+    .project-card:last-child { border-bottom: none; }
+    .project-thumb {
+      width: 90px;
+      height: 70px;
+      border-radius: 4px;
+      background: var(--card-bg);
+      border: 1px solid var(--rule);
+      object-fit: cover;
+    }
+    .project-thumb-placeholder {
+      width: 90px;
+      height: 70px;
+      border-radius: 4px;
+      background: var(--card-bg);
+      border: 1px solid var(--rule);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: #aaa;
+      text-align: center;
+    }
+    .project-info .tag-row { display: flex; gap: 0.4rem; margin-bottom: 0.4rem; flex-wrap: wrap; }
+    .tag {
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      font-weight: 500;
+    }
+    .project-info p { font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .btn-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .btn {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.2rem 0.6rem;
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+      color: var(--muted);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--rule);
+      text-align: center;
+      padding: 2rem 1.5rem;
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+
+    @media (max-width: 560px) {
+      .intro-grid { grid-template-columns: 1fr; }
+      .intro-grid img, .intro-placeholder { margin: 0 auto; }
+      .project-card { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <ul>
+    <li><a href="#about">About</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#thesis">Research</a></li>
+    <li><a href="#projects">Projects</a></li>
+  </ul>
+</nav>
+
+<main>
+
+  <!-- ── INTRODUCTION ── -->
+  <section id="about">
+    <div class="intro-grid">
+      <div>
+        <h1>Hello, I'm Luke Serrano</h1>
+        <p>
+          I am a Master's student in Aerospace Engineering at
+          <a href="https://engineering.tamu.edu/aerospace/">Texas A&amp;M University</a>, advised by
+          <a href="https://engineering.tamu.edu/aerospace/profiles/majji-manoranjan.html">Prof. Manoranjan Majji</a>.
+          My research focuses on computer vision for image-driven spacecraft proximity operations,
+          with a current emphasis on monocular pose estimation and neural network-based 2D–3D correspondence learning.
+        </p>
+        <p>
+          I am currently a Spacecraft GNC Intern at
+          <a href="https://fireflyspace.com">Firefly Aerospace</a> and previously interned at
+          Sandia National Laboratories (DOE L-Clearance) as an NGC Engineer, and at Northrop Grumman
+          in Systems Safety and Reliability Engineering.
+        </p>
+        <div class="links-row">
+          <a href="mailto:lukeserrano0@gmail.com">Email</a>
+          <a href="https://www.linkedin.com/in/luke-serrano">LinkedIn</a>
+        </div>
+      </div>
+      <img src="images/portrait.jpg" alt="Luke Serrano" />
+    </div>
+  </section>
+
+  <!-- ── EDUCATION ── -->
+  <section id="education">
+    <h2>Education</h2>
+
+    <div class="edu-entry">
+      <strong>Texas A&amp;M University</strong><br/>
+      <span class="degree">M.S., Aerospace Engineering</span>
+      <span class="year">(2025 – Present)</span><br/>
+      <span style="font-size:0.88rem;color:#888;">Focus: Computer Vision for Spacecraft Proximity Operations · Advisor: Prof. Manoranjan Majji</span>
+    </div>
+
+    <div class="edu-entry">
+      <strong>Missouri University of Science &amp; Technology</strong><br/>
+      <span class="degree">B.S., Aerospace Engineering</span>
+      <span class="year">(2022 – 2025)</span><br/>
+      <span style="font-size:0.88rem;color:#888;">GPA: 3.8 &nbsp;·&nbsp; Orbit Determination &amp; Estimation · Optimal Control &amp; Estimation · Orbital Mechanics II</span>
+    </div>
+  </section>
+
+  <!-- ── THESIS RESEARCH ── -->
+  <section id="thesis">
+    <h2>Thesis Research</h2>
+    <p>
+      My thesis addresses the problem of image-driven spacecraft proximity operations, focusing on accurate
+      and reliable relative pose estimation between a chaser and target spacecraft using monocular vision.
+    </p>
+
+    <div class="thesis-card">
+      <div class="meta">Current Work — Monocular Pose Estimation</div>
+      <h3>Neural Network-Based 2D–3D Correspondence Learning for Spacecraft Pose Estimation</h3>
+      <p>
+        The core challenge in the monocular Perspective-n-Point (PnP) pose estimation pipeline is reliably
+        obtaining 2D–3D point correspondences. My thesis investigates training a neural network to solve
+        this correspondence problem directly, feeding the learned correspondences into a solvePnP solver
+        to recover the full 6-DOF relative pose.
+      </p>
+      <p>
+        To generate training data, I am developing a Blender synthetic image generation pipeline that
+        renders photorealistic images of a target spacecraft from a 3D STL model. Blender naturally
+        provides ground-truth 2D–3D correspondences, which serve as supervision for the network's
+        cost function.
+      </p>
+      <div class="pill-row">
+        <span class="pill">Monocular Vision</span>
+        <span class="pill">PnP Pose Estimation</span>
+        <span class="pill">Deep Learning</span>
+        <span class="pill">Synthetic Data</span>
+        <span class="pill">Blender</span>
+      </div>
+    </div>
+
+    <div class="thesis-card">
+      <div class="meta">Prior Work — Point Cloud ICP</div>
+      <h3>Relative Pose Estimation via Iterative Closest Point (ICP)</h3>
+      <p>
+        Initial pose estimation work used Open3D's Iterative Closest Point algorithm on 3D point clouds
+        (~2,000 points per epoch) to estimate the relative pose of a target spacecraft. While achieving
+        reasonable accuracy, ICP showed limitations at structural connectors where image-space information
+        is richer than the point cloud representation — motivating the transition to monocular methods.
+      </p>
+      <div class="pill-row">
+        <span class="pill">ICP</span>
+        <span class="pill">Point Cloud</span>
+        <span class="pill">Open3D</span>
+        <span class="pill">Proximity Operations</span>
+      </div>
+    </div>
+  </section>
+<!-- ── PROJECTS ── -->
+  <section id="projects">
+    <h2>Projects</h2>
+
+    <!-- Project 1: Lunar Lander Pose Estimation -->
+    <div class="project-card">
+      <img src="images/spacecraft_basilisk.png" class="project-thumb" alt="Basilisk spacecraft visualization" />
+      <div class="project-info">
+        <div class="tag-row">
+          <span class="tag">Estimation &amp; Navigation · Fall 2025</span>
+        </div>
+        <h3>Lunar Lander Pose Estimation via EKF/MEKF &amp; Gaussian Mixture Filter</h3>
+        <p>
+          Formulated a Multiplicative Extended Kalman Filter (MEKF) and an Extended Gaussian Mixture
+          Filter (EGMF) to estimate the position, velocity, and attitude of a lunar lander in low lunar
+          orbit using optical landmark measurements and gyroscope data. Both filters achieved attitude
+          error within ±0.2° and position error within ±20 m over a 200-second simulation in Basilisk.
+        </p>
+        <div class="btn-row">
+          <a class="btn" href="reports/LunarLanderPoseEstimationReport_Fall25.pdf">Report PDF</a>
         </div>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- About Me Section -->
-<section class="section">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">About Me</h2>
-        <div class="content has-text-justified">
-          <p>{{ site.author.bio | markdownify }}</p>
+    <!-- Project 2: Optimal Attitude Control -->
+    <div class="project-card">
+      <div class="project-thumb-placeholder">img</div>
+      <div class="project-info">
+        <div class="tag-row">
+          <span class="tag">Guidance, Navigation &amp; Control · Spring 2025</span>
+        </div>
+        <h3>Optimal Spacecraft Attitude Control Using Linear Error Quaternion Dynamics</h3>
+        <p>
+          Derived a quaternion-based LQR attitude controller with no linearization assumptions by
+          formulating a multiplicative error quaternion regulation problem with a closed-form torque
+          expression. Validated in Basilisk against pole-placement and MRP PD controllers; the LQR
+          approach achieved lower total cost (J* = 0.000435 vs. 0.002951) and faster detumble with
+          less applied torque.
+        </p>
+        <div class="btn-row">
+          <a class="btn" href="reports/OptimalErrorQuaternionAttitudeControllerReport_Spring25.pdf">Report PDF</a>
         </div>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- Technical Projects Section -->
-<section class="section">
-  <div class="container is-max-desktop">
-    <h2 class="title is-3">Technical Projects & Research</h2>
-    
-    {% for project in site.data.projects %}
-    <div class="columns is-centered project-row" style="margin-bottom: 3rem; border-bottom: 1px solid #f5f5f5; padding-bottom: 2rem;">
-      
-      <!-- Left side: Interactive Visual Node (Matches David / Keunhong hover video feature) -->
-      <div class="column is-three-tenths current-project-media">
-        <div class="columns-image" style="background: #fafafa; border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: center; height: 100%;">
-          {% if project.image_mouseover %}
-            <video poster="assets/img/{{ project.image }}" autoplay controls muted loop playsinline height="100%">
-              <source src="assets/img/{{ project.image_mouseover }}" type="video/mp4">
-            </video>
-          {% else %}
-            <img src="assets/img/{{ project.image }}" alt="{{ project.title }}" style="border-radius: 4px;">
-          {% endif %}
-        </div>
-      </div>
+  
+  </section>
 
-      <!-- Right side: Meta Text Details -->
-      <div class="column is-seven-tenths">
-        <h3 class="title is-4" style="color: #363636; margin-bottom: 0.25rem;">{{ project.title }}</h3>
-        <p class="is-size-6" style="color: #7a7a7a; font-weight: 500; margin-bottom: 0.75rem;">{{ project.venue }}</p>
-        <div class="content is-size-6" style="color: #4a4a4a; line-height: 1.6;">
-          <p>{{ project.description }}</p>
-        </div>
-        <div class="publication-links">
-          {% if project.project_page %}
-            <a href="{{ project.project_page }}" class="external-link button is-small is-rounded is-light">
-              <span class="icon"><i class="fab fa-github"></i></span>
-              <span>Code & Architecture</span>
-            </a>
-          {% endif %}
-        </div>
-      </div>
+</main>
 
-    </div>
-    {% endfor %}
-  </div>
-</section>
+<footer>
+  Luke Serrano &nbsp;·&nbsp; <a href="mailto:lukeserrano0@gmail.com">lukeserrano0@gmail.com</a>
+</footer>
 
-<!-- Education Timeline Section -->
-<section class="section" style="background-color: #fafafa;">
-  <div class="container is-max-desktop">
-    <h2 class="title is-3">Education</h2>
-    <div class="columns is-centered">
-      <div class="column is-full">
-        {% for edu in site.data.education %}
-          <div class="box" style="box-shadow: none; border: 1px solid #eef0f2; margin-bottom: 1.5rem; padding: 2rem;">
-            <div class="columns">
-              <div class="column is-nine-tenths">
-                <h3 class="title is-4" style="margin-bottom: 0.5rem;">{{ edu.name }}</h3>
-                <div class="content is-size-6" style="color: #4a4a4a;">
-                  {{ edu.description }}
-                </div>
-              </div>
-              <div class="column is-one-tenth has-text-right-tablet">
-                <span class="tag is-light is-medium" style="font-weight: 600; background: #e2e8f0;">{{ edu.dates }}</span>
-              </div>
-            </div>
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-</section>
+</body>
+</html>

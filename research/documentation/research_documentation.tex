@@ -1,0 +1,812 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[version=4]{mhchem}
+\usepackage{siunitx}
+\usepackage{longtable,tabularx}
+\usepackage{amssymb, bm} % Removed duplicate amsmath load
+\usepackage{verbatim}
+\usepackage{listings}
+\usepackage{xcolor} % Added missing package for \definecolor
+\usepackage{tcolorbox} % Boxed environment used to delineate verbatim author notes
+\tcbuselibrary{breakable}
+
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{authorboxbg}{rgb}{0.96,0.96,0.98}
+\definecolor{authorboxframe}{rgb}{0.40,0.40,0.55}
+
+\lstdefinestyle{pythonstyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegray},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    language=Python
+}
+
+\lstset{style=pythonstyle}
+
+% ---- Boxed environment marking content copied verbatim from the author's handwritten notes ----
+% Usage: \begin{authornotes}{9/17/26} ... \end{authornotes}
+\newtcolorbox{authornotes}[1]{
+    breakable,
+    colback=authorboxbg,
+    colframe=authorboxframe,
+    boxrule=0.6pt,
+    arc=2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    fonttitle=\bfseries\itshape\small,
+    coltitle=black,
+    title={Author's Notes --- Verbatim (#1)}
+}
+
+\setlength\LTleft{0pt}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% HELPFUL MATH DEFINITIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% vectors / matrices
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\mat}[1]{\mathbf{#1}}
+
+% position / velocity / quaternion shorthands
+\newcommand{\rBM}{\vect{r}^M_{B/M}}      % position of B wrt M expressed in M
+\newcommand{\vBM}{\vect{v}^M_{B/M}}      % velocity of B wrt M expressed in M
+\newcommand{\qBM}{\hat{\Bar{\mathbf{q}}}^B_{M}}    % quaternion representing B wrt M (unit)
+
+\newcommand{\mrBM}{\vect{m}_{\rBM}^{-}}      % position of B wrt M expressed in M
+
+\newcommand{\mrBMpkm}{\vect{m}_{r,k-1}^+}
+
+% MEKF defs
+\newcommand{\qUnitGeneric}{\hat{\Bar{\mathbf{q}}}}
+\newcommand{\qRef}{^*\hat{\Bar{\mathbf{q}}}^B_{M}}
+\newcommand{\wBMRef}{^*\vect{\omega}^B_{B/M}}
+\newcommand{\errQuat}{\delta\qUnitGeneric^{B}_{B'}}
+\newcommand{\errQuatInv}{{\delta\qUnitGeneric^{B}_{B'}}^{-1}}
+\newcommand{\errwBM}{\delta\vect{\omega}^B_{B/M}}
+
+% MEKF gryo
+\newcommand{\wBMMeas}{\Tilde{\vect{\omega}}^B_{B/M}}
+\newcommand{\wBias}{\vect{\beta}}
+\newcommand{\wNoise}{\vect{w}_\omega}
+\newcommand{\wBiasNoise}{\vect{w}_\beta}
+\newcommand{\PSDww}{\mat{Q}_\omega\omega}
+\newcommand{\PSDbb}{\mat{Q}_\omega\omega}
+
+\newcommand{\mGyro}{\vect{m}_\omega}
+\newcommand{\mBias}{\vect{m}_\beta}
+
+
+\newcommand{\TBMprime}{\mat{T}_{M_k}^{B'}}
+
+
+
+
+% dynamics variables
+\newcommand{\wMN}{\vect{\omega}^M_{M/N}}
+\newcommand{\muMoon}{\mu_{Moon}}
+\newcommand{\rBMnorm}{r^M_{B/M}}
+\newcommand{\wBM}{\vect{\omega}^B_{B/M}}
+\newcommand{\wGryoOut}{\vect{\omega}^G_{B/N}}
+
+% measurement variables
+\newcommand{\rlO}{\vect{r}^M_{l/M}}
+\newcommand{\rBO}{\vect{r}^M_{B/M_,k}}
+\newcommand{\rlB}{\vect{r}^M_{l/B_,k}}
+\newcommand{\rlBmeas}{\vect{r}^C_{l/C_,k}}
+\newcommand{\TBM}{\mat{T}^B_{M_,k}}
+\newcommand{\TCB}{\mat{T}^C_{B}}
+
+%% ^^ above is old code, but has the notation that I use
+
+\newcommand{\pBiB}{\vect{p}^{\mathit{B}}_{q_{i}/\mathbf{B}}}
+\newcommand{\pBjB}{\vect{p}^{\mathit{B}}_{q_{j}/\mathbf{B}}}
+\newcommand{\pBi}{\vect{p}_{q_{i}/\mathbf{B}}}
+\newcommand{\pBip}{\vect{p}_{p_{i}/\mathbf{B}}}
+\newcommand{\pCiC}{\vect{p}^{\mathit{C}}_{p_{i}/\mathbf{C}}}
+\newcommand{\pCi}{\vect{p}_{p_{i}/\mathbf{C}}}
+\newcommand{\pBCC}{\vect{p}^{\mathit{C}}_{\mathbf{B}/\mathbf{C}}}
+\newcommand{\pBC}{\vect{p}_{\mathbf{B}/\mathbf{C}}}
+\newcommand{\TBCtoC}{\mat{T}_{\mathit{B} \rightarrow \mathit{C}}} % 4x4 Homogeneous Transformation
+\newcommand{\nCiC}{\vect{n}^{\mathit{C}}_{p_{i}/\mathbf{C}}} % Surface normal vector at target point p_i in C
+
+
+
+%% RSO is point in 3d space
+%% measurement model that
+
+\newcommand{\TBC}{\mat{T}^B_{C}}
+\newcommand{\TIB}{\mat{T}^I_{B}}
+\newcommand{\uRSOcC}{\vect{u}^C_{RSO/C}}
+\newcommand{\uRSOcI}{\vect{u}^I_{RSO/C}}
+
+%% ---- Pinhole camera / perspective projection ----
+\newcommand{\Kmat}{\mat{K}} % camera intrinsic matrix (bold, distinguished from the correspondence set below)
+\newcommand{\corrSet}{\mathcal{K}} % correspondence set (calligraphic, distinguished from \Kmat)
+
+%% ---- Small-angle multiplicative rotation error ----
+\newcommand{\rotErr}{\vect{\alpha}} % small-angle rotation error vector
+\newcommand{\skewop}[1]{\left[#1\right]_{\times}} % skew-symmetric operator
+
+%% ---- Nonlinear least-squares / Gauss-Newton estimation ----
+\newcommand{\stateVec}{\vect{x}}
+\newcommand{\dstate}{\delta\vect{x}}
+\newcommand{\dstateHat}{\delta\hat{\vect{x}}}
+\newcommand{\measBar}{\bar{\vect{z}}}
+\newcommand{\measTilde}{\tilde{\vect{z}}}
+\newcommand{\err}{\vect{e}}
+\newcommand{\Jac}{\mat{H}_x} % measurement Jacobian (bold H, distinct from scalar image height H)
+\newcommand{\stackJac}{\tilde{\mat{H}}} % stacked Jacobian
+\newcommand{\stackMeas}{\vect{Z}} % stacked linearized measurement vector
+
+%% ---- Closed-form Absolute Orientation / OLAE ----
+\newcommand{\qCB}{\vect{q}^{C}_{B}} % Classical Rodrigues Parameters (CRP), Cayley parameterization of \TCB
+\newcommand{\tB}{\vect{t}_B} % shorthand for \pBCC once introduced by the author
+\newcommand{\muC}{\vect{\mu}^{C}_{C}} % centroid of the measurement point cloud, expressed in C
+\newcommand{\muB}{\vect{\mu}^{B}_{B}} % centroid of the CAD point cloud, expressed in B
+\newcommand{\pCt}{\Tilde{\vect{p}}^{\,C}_{p_i/C}} % centroid-differenced measurement point i
+\newcommand{\pBt}{\Tilde{\vect{p}}^{\,B}_{p_j/B}} % centroid-differenced CAD point j
+\newcommand{\zetaVec}{\vect{\zeta}} % centroid-differenced measurement residual (difference)
+\newcommand{\rhoVec}{\vect{\rho}} % centroid-differenced measurement sum
+\newcommand{\bvec}{\vect{b}} % auxiliary bilinear-decoupling variable, b = (I+[q x]) t_B
+
+\title{Relative Pose Estimation: Research Documentation}
+\author{}
+\date{8/28/26}
+
+\begin{document}
+\maketitle
+\section{Modeling}
+
+\subsection{Relative Vector Geometry: Camera and Rigid Body}
+\label{sec:geometry-3d}
+
+To transform points on a rigid body frame $B$ to points in a camera frame $C$, we can express the operation using both a 3D affine vector notation and a $4 \times 4$ homogeneous transformation matrix.
+
+\subsubsection{Frame Definitions}
+
+\begin{equation}
+   \mathit{C} = \{ \mathbf{C}, \hat{\vect{c}}_1, \hat{\vect{c}}_2, \hat{\vect{c}}_3 \}
+\end{equation}
+
+\begin{equation}
+   \mathit{B} = \{ \mathbf{B}, \hat{\vect{b}}_1, \hat{\vect{b}}_2, \hat{\vect{b}}_3 \}
+\end{equation}
+
+\subsubsection{Measurement Point Cloud Point Definition}
+The point cloud derived from measurement source has $P$ number of points, which mathematically are vectors in $\mathbb{R}^3$ of each point wrt the camera origin, $\mathbf{C}$, expressed in the $\mathit{C}$ frame.
+
+\begin{equation}
+\pCiC , \quad i = 1, 2, 3,\dots, P
+\end{equation}
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{../../presentations/panel_interview/images/research/diags/PCD_MEAS_ONLY.png}
+    \caption{Measurement-derived point cloud, expressed in the camera frame $C$.}
+    \label{fig:pcd-meas-only}
+\end{figure}
+
+
+\pagebreak
+
+
+\subsubsection{CAD Model Point Cloud Points Definition}
+The point cloud derived from the CAD model may not have the same number of points as the measurement itself. The CAD model point cloud has $Q$ number of points, which mathematically are vectors in $\mathbb{R}^3$ of each point wrt the CAD PCD origin, $\mathbf{B}$, expressed in the $\mathit{B}$ frame.
+
+\begin{equation}
+\pBjB , \quad j = 1, 2, 3,\dots, Q
+\end{equation}
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{../../presentations/panel_interview/images/research/diags/PCD_CAD_GEOM.png}
+    \caption{CAD-model point cloud, expressed in the rigid-body frame $B$.}
+    \label{fig:pcd-cad-geom}
+\end{figure}
+
+\subsubsection{The Rigid-Body Transformation in $\mathbb{R}^3$}
+The standard 3D kinematic translation and rotation mapping is given by:
+\begin{equation}
+    \pCiC = \TCB \pBjB + \pBCC
+    \label{eq:pcd-measurement-model}
+\end{equation}
+
+\subsubsection{Generic Homogeneous Transformation in $\mathbb{R}^4$}
+By appending a scaling factor of 1 to our coordinate vectors, the rigid body mapping can be cleanly expressed as a single $4 \times 4$ matrix multiplication:
+\begin{equation}
+    \begin{bmatrix}
+        \pCiC \\
+        1
+    \end{bmatrix}
+    = \TBCtoC
+    \begin{bmatrix}
+        \pBiB \\
+        1
+    \end{bmatrix}
+\end{equation}
+
+Where the homogeneous transformation matrix $\TBCtoC$ is explicitly partitioned as:
+\begin{equation}
+    \TBCtoC =
+    \begin{bmatrix}
+        \TCB & \pBCC \\
+        \vect{0}_{1\times3} & 1
+    \end{bmatrix}
+\end{equation}
+
+Expanding this reveals the complete linear algebraic formulation:
+\begin{equation}
+    \begin{bmatrix}
+        \pCiC \\
+        1
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        & & &  \\
+        & \TCB & & \pBCC \\
+        & & &  \\
+        &\vect{0}^T & & 1
+    \end{bmatrix}
+    \begin{bmatrix}
+        \pBiB \\
+        1
+    \end{bmatrix}
+\end{equation}
+
+\begin{figure}[thbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{../../presentations/panel_interview/images/research/diags/PCD_MEAS_MODEL.png}
+    \caption{Rigid-body transformation mapping CAD points $\pBjB$ into the measurement point cloud $\pCiC$.}
+    \label{fig:pcd-meas-model}
+\end{figure}
+
+\subsubsection{Uncoordinatized Vectors}
+For reference, the frame-free (uncoordinatized) versions of the vectors above are:
+
+\begin{equation}
+    \pBi
+\end{equation}
+\begin{equation}
+    \pCi
+\end{equation}
+\begin{equation}
+    \pBC
+\end{equation}
+\begin{equation}
+    \pBip
+\end{equation}
+
+\newpage
+\subsection{Camera Modeling}
+\label{sec:camera-modeling}
+
+\subsubsection{Pinhole Camera}
+\label{sec:pinhole-camera}
+
+The geometry of Section~\ref{sec:geometry-3d} describes points in $\mathbb{R}^3$. To relate that geometry to what is actually observed by a camera, we insert the image plane: a 3D point in the camera frame is projected through the pinhole camera model onto a 2D pixel-coordinate measurement.
+
+\paragraph{Perspective (Pinhole) Projection.}
+A 3D point expressed in the camera frame, $\pCiC$, is projected onto the normalized image plane by dividing through by its depth (third component), $Z_j$:
+
+\begin{equation}
+    \begin{bmatrix}
+        \tilde{x}_i \\
+        \tilde{y}_i \\
+        1
+    \end{bmatrix}
+    = \tilde{\vect{p}}^{\,C}_{p_i/C}
+    = \frac{1}{Z_j}\left\{ \pCiC \right\}
+    = \frac{1}{Z_j}\left\{ \TCB \pBjB + \pBCC \right\}
+    \label{eq:pinhole-projection}
+\end{equation}
+
+This is the perspective projection of the 3D rigid-body geometry from Eq.~\eqref{eq:pcd-measurement-model}.
+
+The image has width $W$ and height $H$ (in pixels), with pixel coordinates $(u,v)$ measured from the top-left corner. The normalized image-plane coordinates are mapped into pixel coordinates by the camera intrinsic matrix $\Kmat$:
+
+\begin{equation}
+    \Kmat =
+    \begin{bmatrix}
+        f_x & 0 & c_x \\
+        0 & f_y & c_y \\
+        0 & 0 & 1
+    \end{bmatrix}
+\end{equation}
+
+where $f$ is the focal length (expressed in pixels) and $(c_x, c_y)$ is the principal point. The resulting pixel-space measurement is:
+
+\begin{equation}
+    \begin{bmatrix}
+        x_{p_i/C} \\
+        y_{p_i/C} \\
+        1
+    \end{bmatrix}
+    = \bar{\vect{p}}^{\,C}_{p_i/C}
+    = \Kmat \, \tilde{\vect{p}}^{\,C}_{p_i/C}
+    \label{eq:pixel-measurement}
+\end{equation}
+
+\paragraph{Focal Length from Horizontal Field of View.}
+
+Given the horizontal field of view $\theta_H$ and image width $W$, the focal length (in pixels) can be recovered from the pinhole geometry:
+
+\begin{equation}
+    \tan\left( \frac{\theta_H}{2} \right) = \frac{W}{2f}
+\end{equation}
+
+\begin{equation}
+    f = \frac{W}{2}\left( \tan \frac{\theta_H}{2} \right)^{-1} \quad \text{[pixels]}
+\end{equation}
+
+For example, for an image resolution of $W \times H = 672 \times 376$ pixels, this relation gives the focal length in pixels directly from the sensor's horizontal FOV.
+
+\subsubsection{Lense Distortion Model}
+\label{sec:lens-distortion}
+
+\newpage
+\subsection{Stereo-Camera Modeling}
+\label{sec:stereo-camera-modeling}
+
+\newpage
+\section{Optimal Parameter Estimation}
+\label{sec:optimal-parameter-estimation}
+
+Two complementary families of parameter-estimation technique are used throughout this document: \emph{linear} least-squares estimation, for measurement models that are already linear in the unknown parameters (Section~\ref{sec:linear-lse}); and \emph{nonlinear} least-squares estimation, for measurement models that must first be linearized about a reference operating point and then solved iteratively (Section~\ref{sec:nlls-estimation}).
+
+\subsection{Linear Least Squared Error Estimation}
+\label{sec:linear-lse}
+
+The bilinear absolute-orientation problem of Section~\ref{sec:closed-form} reduces, after a change of variables, to a measurement model that is linear in the unknown parameters. The general form of that linear system, and its least-squares solution, is given below --- copied verbatim from the author's notes.
+
+\begin{authornotes}{9/17/26 (cont.)}
+\begin{equation}
+    \vect{y} = \begin{bmatrix} -\skewop{\left( \pCiC + \pBjB \right)} & \mat{I}_{3\times 3} \end{bmatrix} \begin{bmatrix} \qCB \\ \bvec \end{bmatrix} = \mat{H}\vect{x} \qquad (3\times 6) \ (6 \times 1)
+\end{equation}
+
+Now this is a data fitting problem that we choose to solve with the minimum squared error technique.
+
+\begin{equation}
+    \tilde{\vect{y}} = \begin{bmatrix} \vect{y}_1 \\ \vdots \\ \vect{y}_P \end{bmatrix} \, (3P \times 1) \, , \qquad \tilde{\mat{H}} = \begin{bmatrix} \mat{H}_1 \\ \vdots \\ \mat{H}_P \end{bmatrix} \, (3P \times 6)
+\end{equation}
+
+\begin{equation}
+    \Rightarrow \hat{\vect{x}} = \left( \tilde{\mat{H}}^T \tilde{\mat{H}} \right)^{-1} \tilde{\mat{H}}^T \tilde{\vect{y}} \qquad (6 \times 6 \text{ inversion})
+    \label{eq:linear-lse-solution}
+\end{equation}
+
+*How many $P$ observations you need is directly derived from the ability to invert $\left( \tilde{\mat{H}}^T \tilde{\mat{H}} \right)$; it is dependent on the rank of $\left( \tilde{\mat{H}}^T \tilde{\mat{H}} \right)$.
+\end{authornotes}
+
+Eq.~\eqref{eq:linear-lse-solution} is the general linear least-squares result invoked throughout this document: both the 6-DOF bilinear solve and the 3-DOF centroid-differenced OLAE solve of Section~\ref{sec:closed-form} are applications of it, with $\mat{H}_i$ and $\vect{y}_i$ specialized to each case.
+
+\subsection{Non-Linear Least Squared Error Estimation}
+\label{sec:nlls-estimation}
+
+With the geometry of Section~\ref{sec:geometry-3d} (and, by extension, Section~\ref{sec:pinhole-camera}) established, it can now be used to estimate the unknown parameters of interest by nonlinear least squares. The \emph{state} is defined to be the specific set of parameters we wish to estimate --- here, the relative pose of the camera with respect to the rigid body:
+
+\begin{equation}
+    \stateVec = \begin{bmatrix} \pBCC \\ \rotErr \end{bmatrix} \in \mathbb{R}^n
+\end{equation}
+
+where $\pBCC$ is the relative position and $\rotErr$ is an attitude correction parameterizing $\TCB$ relative to a reference (linearization-point) attitude estimate $B'$. (A closed-form alternative that avoids linearizing the attitude altogether is given in Section~\ref{sec:closed-form}, using the linear estimator of Section~\ref{sec:linear-lse} directly.)
+
+To estimate $\stateVec$, we must: define a cost function; linearize the (nonlinear) measurement model; choose which states to estimate; and iteratively update the state estimate to minimize the cost.
+
+\subsubsection{Defining the Cost Function}
+
+\paragraph{Generic Least-Squares Error (LSE) Cost Function.}
+
+In general, given a measurement $\vect{z}$ and a measurement model $\vect{h}(\stateVec)$ that predicts that measurement from the current state estimate, the weighted least-squares cost function is:
+
+\begin{equation}
+    J = \frac{1}{2}\sum_{i=1}^{P} \err_i^T \err_i \, , \qquad
+    \err_i = \vect{z}_i - \vect{h}(\stateVec)
+\end{equation}
+
+The specific form of the measurement $\vect{z}_i$ and the measurement model $\vect{h}(\stateVec)$ depend on which sensing modality is used, as detailed below.
+
+\paragraph{Applying the LSE Cost Function to Point Cloud Measurements.}
+
+\textbf{Measurement:} The point cloud measurement is $\pCiC$, the $i$-th measured point expressed in the camera frame $C$ (Section~\ref{sec:geometry-3d}).
+
+\textbf{Measurement model:} The model predicts $\pCiC$ from the current state estimate using the rigid-body transformation of Eq.~\eqref{eq:pcd-measurement-model}:
+
+\begin{equation}
+    \vect{h}(\stateVec) = \mat{T}^{C}_{B'} \left[ \mat{I}_3 - \skewop{\rotErr} \right] \pBjB + \pBCC
+\end{equation}
+
+\textbf{Error:}
+\begin{equation}
+    \err_i = \pCiC - \vect{h}(\stateVec)
+\end{equation}
+
+\paragraph{Point-to-Plane Variant.} Rather than minimizing the raw 3D residual above (point-to-point), the error can instead be projected onto the unit surface normal $\nCiC$ at the target point, which penalizes only the component of the residual normal to the target surface:
+\begin{equation}
+    \err_i = \left[ \pCiC - \vect{h}(\stateVec) \right] \cdot \nCiC
+\end{equation}
+so that the corresponding point-to-plane cost function is:
+\begin{equation}
+    J = \sum_{\corrSet} \left[ \left( \pCiC - (\TCB \pBjB + \pBCC) \right) \cdot \nCiC \right]^2
+\end{equation}
+Expressed compactly in homogeneous coordinates ($\mathbb{R}^4$), let $\tilde{\vect{p}}$ denote the homogeneous vector $[ \vect{p}^T, 1 ]^T$. The point-to-plane cost function is then:
+\begin{equation}
+    E(\TBCtoC) = \sum_{i} \left[ \left( \mathbf{\Pi} \TBCtoC \tilde{\vect{p}}^B_{q_{i}/B} - \pCiC \right)^T \nCiC \right]^2
+\end{equation}
+where $\mathbf{\Pi} = \begin{bmatrix} \mat{I}_{3\times3} & \vect{0}_{3\times1} \end{bmatrix}$ is a projection matrix used to drop the homogeneous scaling factor back down to $\mathbb{R}^3$ for the dot product calculation.
+
+\paragraph{Applying the LSE Cost Function to Image Measurements.}
+
+\textbf{Measurement:} The image measurement is $\bar{\vect{p}}^{\,C}_{p_i/C}$, the $i$-th observed pixel coordinate (Section~\ref{sec:pinhole-camera}).
+
+\textbf{Measurement model:} The model predicts the pixel measurement by composing the rigid-body transform with the pinhole projection of Eq.~\eqref{eq:pixel-measurement}:
+
+\begin{equation}
+    \vect{h}(\stateVec) = \Kmat \, \frac{1}{Z}\left\{ \mat{T}^{C}_{B'} \left[ \mat{I}_3 - \skewop{\rotErr} \right] \pBjB + \pBCC \right\}
+\end{equation}
+
+\textbf{Error:}
+\begin{equation}
+    \err_i = \bar{\vect{p}}^{\,C}_{p_i/C} - \vect{h}(\stateVec)
+\end{equation}
+
+\subsubsection{How to Solve the Nonlinear Least Squares (NLLS) Problem}
+
+Once a measurement, a measurement model, and a correspondence set (Section~\ref{sec:correspondence-problem}) have been chosen, we must still choose \emph{how} to solve the resulting NLLS problem.
+
+\paragraph{Method 1: Gauss-Newton.}
+
+Because $\vect{h}(\stateVec)$ is nonlinear in $\stateVec$ (for either the point cloud or the image measurement model above), it is linearized about an operating point $\stateVec^*$ via a Taylor series expansion:
+
+\begin{equation}
+    \vect{h}(\stateVec) \approx \vect{h}(\stateVec^*) + \Jac\Big|_{\stateVec^*} (\stateVec - \stateVec^*) + (\stateVec - \stateVec^*)^T \mat{H}_{xx}\Big|_{\stateVec^*} (\stateVec - \stateVec^*) + \text{H.O.T.}
+\end{equation}
+
+\begin{equation}
+    \dstate = \stateVec - \stateVec^*
+\end{equation}
+
+where the Jacobian of $\vect{h}$ with respect to the state (computed from whichever measurement model was selected above) is:
+
+\begin{equation}
+    \Jac =
+    \begin{bmatrix}
+        \dfrac{\partial h_1}{\partial x_1} & \dfrac{\partial h_1}{\partial x_2} & \cdots & \dfrac{\partial h_1}{\partial x_n} \\[2mm]
+        \vdots & & & \vdots \\[1mm]
+        \dfrac{\partial h_m}{\partial x_1} & \cdots & & \dfrac{\partial h_m}{\partial x_n}
+    \end{bmatrix} \in \mathbb{R}^{m \times n}
+\end{equation}
+
+Dropping the higher-order terms, the linearized residual for the $i$-th measurement is:
+
+\begin{equation}
+    \err_i = \measBar_i - \left\{ \vect{h}(\stateVec^*) + \Jac\Big|_{\stateVec^*} \dstate \right\} \triangleq \measTilde_i
+\end{equation}
+
+\paragraph{Concatenated (Stacked) Least-Squares System.} Stacking all $P$ measurements, the cost function can be written compactly as:
+
+\begin{equation}
+    J = \frac{1}{2} \left( \stackMeas - \stackJac \, \dstate \right)^T \left( \stackMeas - \stackJac \, \dstate \right)
+\end{equation}
+
+\begin{equation}
+    \stackMeas =
+    \begin{bmatrix}
+        \measTilde_1 \\
+        \vdots \\
+        \measTilde_P
+    \end{bmatrix}
+    \, , \qquad
+    \stackJac =
+    \begin{bmatrix}
+        \Jac\big|_{\stateVec^*_1} \\
+        \vdots \\
+        \Jac\big|_{\stateVec^*_P}
+    \end{bmatrix}
+    \in \mathbb{R}^{(P \cdot m) \times n}
+\end{equation}
+
+where
+\begin{align}
+    P &= \text{number of measurements} \\
+    m &= \text{size of each measurement} \\
+    n &= \text{size of the state}
+\end{align}
+
+\paragraph{Normal Equations.} The correction $\dstate$ that minimizes $J$ is found by setting $\partial J / \partial \dstate = 0$ --- this is precisely the linear least-squares problem of Section~\ref{sec:linear-lse}, with $\mat{H}\to\stackJac$, $\vect{y}\to\stackMeas$, and $\vect{x}\to\dstate$:
+
+\begin{equation}
+    \frac{\partial J}{\partial \dstate} = 0 = \left( -\stackJac \right)^T \left( \stackMeas - \stackJac \, \dstate \right)
+\end{equation}
+
+\begin{equation}
+    \left( \stackJac^T \stackJac \right) \dstate = \stackJac^T \stackMeas
+\end{equation}
+
+\begin{equation}
+    \dstateHat = \left( \stackJac^T \stackJac \right)^{-1} \left( \stackJac^T \stackMeas \right)
+\end{equation}
+
+\paragraph{Iterative Update.} The solution is refined iteratively:
+
+\begin{itemize}
+    \item If $\| \dstateHat \| < \epsilon$: the estimate has \textbf{converged}; terminate the iteration.
+    \item Otherwise: update the state estimate,
+    \begin{equation}
+        \stateVec = \stateVec^* + \dstateHat
+    \end{equation}
+    recompute the Jacobians $\Jac$ at the new linearization point, and re-solve for another $\dstateHat$.
+\end{itemize}
+
+\newpage
+\section{Closed-Form Solutions to the Absolute Orientation Problem}
+\label{sec:closed-form}
+
+The measurement model of Eq.~\eqref{eq:pcd-measurement-model} can be solved for $\TCB$ and $\pBCC$ directly, in closed form, rather than by linearizing about a reference attitude and iterating (Section~\ref{sec:nlls-estimation}). This is the classical \emph{absolute orientation} problem: given a set of true correspondences between two point sets, recover the rigid-body transformation that best aligns them. The derivation below is copied verbatim from the author's own notes and proceeds in two stages: a general bilinear formulation that solves for the full 6-DOF transformation ($\TCB$ and $\pBCC$ jointly), and a reduction to a 3-DOF attitude-only problem obtained by centroid-differencing the two point sets, solved via the Optimal Linear Attitude Estimator (OLAE). Both stages reduce to the linear least-squares result of Section~\ref{sec:linear-lse}.
+
+\subsection{The Bilinear Formulation (6 DOF)}
+
+\begin{authornotes}{9/17/26}
+Let's develop some mathematical rigor today.
+
+I am concerned with the absolute orientation between two point sets, where the correspondences are true.
+
+\begin{equation}
+    \pCiC = \TCB \pBjB + \pBCC \qquad \rightarrow \text{ measurement model}
+\end{equation}
+
+$\corrSet = \{ (\pCiC, \pBjB) \}$ is known and is true.
+
+Given this geometry I want to solve for $\TCB$ and $\pBCC$.
+
+This is simply a system of equations.
+
+3 eq \quad 12 unknowns.
+
+I choose to parameterize my attitude as the Classical Rodriguez parameters.
+
+\begin{equation}
+    \qCB = \tan\left( \frac{\phi}{2} \right) \hat{\vect{e}} = \begin{bmatrix} q_1 \\ q_2 \\ q_3 \end{bmatrix}
+\end{equation}
+
+and use the Cayley transform:
+
+\begin{equation}
+    \TCB = \left( \mat{I} + \skewop{\qCB} \right)^{-1} \left( \mat{I} - \skewop{\qCB} \right)
+\end{equation}
+
+\begin{equation}
+    \skewop{\vect{a}} =
+    \begin{bmatrix}
+        0 & -a_3 & a_2 \\
+        a_3 & 0 & -a_1 \\
+        -a_2 & a_1 & 0
+    \end{bmatrix}
+\end{equation}
+
+the model becomes:
+
+\begin{equation}
+    \pCiC = \left( \mat{I} + \skewop{\qCB} \right)^{-1} \left( \mat{I} - \skewop{\qCB} \right) \pBjB + \left( \mat{I} + \skewop{\qCB} \right)^{-1} \pBCC \, , \qquad \pBCC \triangleq \tB
+\end{equation}
+
+\begin{equation}
+    \left( \mat{I} + \skewop{\qCB} \right) \pCiC = \left( \mat{I} - \skewop{\qCB} \right) \pBjB + \left( \mat{I} + \skewop{\qCB} \right) \tB
+\end{equation}
+
+\begin{equation}
+    \pCiC + \skewop{\qCB} \pCiC = \pBjB - \skewop{\qCB} \pBjB + \left( \mat{I} + \skewop{\qCB} \right) \tB
+\end{equation}
+
+\begin{equation}
+    \pCiC - \pBjB = \underbrace{-\skewop{\left( \pCiC + \pBjB \right)} \qCB}_{} + \underbrace{\left( \mat{I} + \skewop{\qCB} \right) \tB}_{(A)} \tag{I}
+\end{equation}
+\end{authornotes}
+
+\subsection{Decoupling the Bilinear Term}
+
+\begin{authornotes}{9/17/26 (cont.)}
+Looking at (I), the unknowns are $\qCB$ and $\tB$.
+
+The term (A) is bilinear.
+
+Therefore I define a new variable $\bvec \triangleq \left( \mat{I} + \skewop{\qCB} \right) \tB$.
+
+(I) becomes
+
+\begin{equation}
+    \pCiC - \pBjB = -\skewop{\left( \pCiC + \pBjB \right)} \qCB + \bvec
+\end{equation}
+
+\begin{equation}
+    \Rightarrow \tB = \left( \mat{I} + \skewop{\qCB} \right)^{-1} \bvec \qquad \Rightarrow \text{solved for after finding } \qCB \text{ \& } \bvec
+\end{equation}
+
+At this point we choose to \emph{centroid align} the two point clouds and assume the translation between the two centroid align sets is $\vect{t} = \vect{0}$.
+
+\begin{equation}
+    \muC = \frac{1}{N} \sum_{i=1}^{N} \pCiC \, , \qquad \muB = \frac{1}{N} \sum_{j=1}^{N} \pBjB
+\end{equation}
+
+\begin{equation}
+    \pCt \triangleq \pCiC - \muC \, , \qquad \pBt \triangleq \pBjB - \muB
+\end{equation}
+
+Now we pose \dots pause \dots
+\end{authornotes}
+
+\noindent (The general bilinear case above --- unknowns $\qCB$ and $\bvec$ jointly --- is solved directly via the linear least-squares result of Section~\ref{sec:linear-lse}, Eq.~\eqref{eq:linear-lse-solution}, with $\mat{H}_i = \begin{bmatrix} -\skewop{\left(\pCiC+\pBjB\right)} & \mat{I}_{3\times3} \end{bmatrix}$ and $\vect{y}_i = \pCiC - \pBjB$. The 3-DOF reduction below is an alternative, lower-dimensional route to the attitude alone.)
+
+\subsection{The 3-DOF Centroid-Differenced Reduction}
+
+\begin{authornotes}{9/17/26--9/18/26}
+After choosing to centroid align the two point sets and assuming the translation between them is $\vect{t} = \vect{0}$, we simply seek to find the rotational difference between the sets.
+
+recall (I) with $\vect{t} = \vect{0}$:
+
+\begin{equation}
+    \pCt - \pBt = -\skewop{\left( \pCt + \pBt \right)} \qCB
+\end{equation}
+
+\begin{equation}
+    \zetaVec \triangleq \pCt - \pBt \, , \qquad \rhoVec \triangleq \pCt + \pBt \qquad \Rightarrow \qquad \zetaVec = -\skewop{\rhoVec} \qCB \tag{II}
+\end{equation}
+
+Thus (II) is a linear measurement model for which least squared error data fitting solution can be employed.
+
+Via OLAE Majji paper $n > 3$ points must be used.
+
+Via OLAE Majji paper, the normal equation can be computed as
+
+\begin{equation}
+    \mat{B} = \sum_{i=1}^{n} \skewop{\rhoVec_i}^T \skewop{\rhoVec_i} \, , \qquad \vect{C} = \sum_{i=1}^{n} \skewop{\rhoVec_i}^T \zetaVec_i \qquad \text{(matrix math)}
+\end{equation}
+
+\begin{equation}
+    \qCB = \underbrace{\mat{B}^{-1}}_{3\times 3} \underbrace{\vect{C}}_{3 \times 1} \qquad \text{where the } \mat{B}^{-1} \text{ is known exactly.}
+\end{equation}
+
+Thus the optimal least squares rotation, which aligns the centroid center point clouds, $\pCt$ and $\pBt$, $i = 1, 2, \dots n$, from the set $\corrSet = \{ (\pCt, \pBt) \}$
+
+$\therefore$ the best estimate of the absolute orientation is: $\qCB$, and
+
+\begin{equation}
+    \pBCC = \tB = \muC - \TCB \, \muB
+\end{equation}
+\end{authornotes}
+
+\noindent ($\mat{B} = \tilde{\mat{H}}^T\tilde{\mat{H}}$ and $\vect{C} = \tilde{\mat{H}}^T\tilde{\vect{y}}$ are exactly the normal-equation quantities of Eq.~\eqref{eq:linear-lse-solution} (Section~\ref{sec:linear-lse}), specialized to $\mat{H}_i \to -\skewop{\rhoVec_i}$ and $\vect{y}_i \to \zetaVec_i$; $\qCB = \mat{B}^{-1}\vect{C}$ is therefore the same $\hat{\vect{x}} = (\tilde{\mat{H}}^T\tilde{\mat{H}})^{-1}\tilde{\mat{H}}^T\tilde{\vect{y}}$ result, applied to the reduced 3-DOF problem.)
+
+\subsection{Degrees of Freedom and Invertibility Requirements}
+
+\begin{authornotes}{9/18/26}
+The prior 3 pages describes the OLAE, which is machinery to solve the absolute orientation problem. An important note should be taken that\dots
+
+If we solve the full absolute orientation problem (the bilinear case), then there are 6 DOF. The structure of $\mat{H}^T \mat{H}$ necessitates 3 non-colinear (or parallel) correspondences for $\mat{H}^T \mat{H}$ to be invertable.
+
+If we centroid difference the point clouds then we are solving a 3DOF problem. The structure of $\mat{B}$ necessitates 3 non-colinear correspondences for $\mat{B}$ to be invertable.
+\end{authornotes}
+
+\newpage
+\section{The Correspondence Problem}
+\label{sec:correspondence-problem}
+
+Each measurement $\vect{z}_i$ has an associated CAD model point $\pBjB$ that the true $\TCB, \pBCC$ would map exactly onto $\vect{z}_i$ in a noiseless setting. This pairing is not known \emph{a priori} and must be established:
+\begin{equation}
+\corrSet = \{ (p_{i},q_{j}) \}
+\end{equation}
+Even with noise-free measurements, $p_{i}$ and $q_{j}$ need not be the same physical point, since the CAD model is only a discrete sampling of the true surface.
+
+Correspondences are established --- from either point cloud or monocular (image) measurements --- through some combination of feature descriptor matching, nearest-neighbor search, reprojection-based matching, or robust random-sample consensus (RANSAC, Section~\ref{sec:ransac-absolute-orientation}).
+
+\paragraph{Point Cloud Measurements.}
+\begin{itemize}
+    \item \textbf{Nearest-neighbor matching}: associate each measured point $\pCiC$ with the closest CAD point $\pBjB$ under the current transform estimate (as in Iterative Closest Point, ICP).
+    \item \textbf{Local geometric feature descriptors}: match points using descriptors of local surface geometry (e.g.\ curvature, normals, FPFH), more robust to a poor initial alignment than raw nearest-neighbor search.
+    \item \textbf{RANSAC-based initial alignment}: a robust random-sampling scheme over candidate correspondences, used to obtain a coarse initial transform (Section~\ref{sec:ransac-absolute-orientation}).
+\end{itemize}
+
+\paragraph{Monocular (Image) Measurements.}
+\begin{itemize}
+    \item \textbf{Keypoint detection and descriptor matching}: detect and match 2D keypoints (e.g.\ ORB, SIFT) between the image and a rendered or previously observed view of the CAD model.
+    \item \textbf{Reprojection-based matching}: project the CAD model points into the image using the current pose estimate and associate each with the nearest detected image feature.
+    \item \textbf{Robust outlier rejection}: RANSAC (e.g.\ within a PnP solve), used to reject incorrect correspondences (Section~\ref{sec:ransac-absolute-orientation}).
+    \item \textbf{Moving-Edges Search with Normal-Direction Gating}: 1D search along the surface normal at each synthetic (projected CAD) edge point; select candidate points by minimum reprojected pixel distance; gate on real/synthetic gradient-direction difference; establish 2D-2D correspondences between the projected CAD edges and the observed image edges:
+\begin{center}
+\begin{math}
+\corrSet = \{ (p_{i},q_{j}) \} \rightarrow \corrSet = \{ (\bar{\vect{p}}^{\,C}_{p_i/C},\pBjB) \}
+\end{math}
+\end{center}
+\end{itemize}
+
+Whichever method is used above, the result is only a \emph{candidate} correspondence set --- it will generally contain mismatches and outliers. RANSAC is what finds the \textbf{consensus set}: the largest inlier subset of a candidate correspondence set that is consistent with a single rigid-body transformation. RANSAC does not generate correspondences on its own; an initial correspondence set must therefore already be established, by one of the methods above, in order to seed it.
+
+\subsection{RANSAC}
+\label{sec:ransac-absolute-orientation}
+
+At its core, each RANSAC iteration solves a parameter estimation problem: it draws a minimal correspondence subset and solves for the rigid-body transformation via the closed-form OLAE result of Section~\ref{sec:closed-form} (itself an application of the linear least-squares result of Section~\ref{sec:linear-lse}). RANSAC must be seeded with an initial correspondence set (Section~\ref{sec:correspondence-problem}) --- it refines a correspondence set, it does not create one from raw measurements. The output of RANSAC is the \textbf{consensus set}, together with the parameter estimate obtained over it. The author's notes below lay out this connection explicitly.
+
+
+\begin{authornotes}{9/18/26 (cont.)}
+One first needs to establish an initial guess of the correspondence set to even seed a RANSAC algorithm.
+\begin{itemize}
+    \item feature descriptor matching
+    \item nearest neighbor \dots
+\end{itemize}
+
+Say we do to obtain the set $\corrSet_0 = \{ (\pCiC, \pBjB) \}$, size $n$.
+
+\textbf{Seed RANSAC}
+\begin{enumerate}
+    \item $t$, \# of inliers in the consensus set to stop sampling
+    \item $e$, residual errors to consider which belong in the consensus set
+    \item max \# of iterations.
+\end{enumerate}
+
+\textbf{RANSAC}
+
+1: Sample $m$ pts from $\corrSet_0$ \quad ($m$ = minimal \# set for solution)
+
+\begin{equation}
+    \qCB, \tB = \mathrm{OLAE}(\corrSet_0)
+\end{equation}
+
+$\rightarrow$ transform all $\pBjB$ $\rightarrow$ get residual error for all $n$ points $= \mathrm{res}_i$
+
+\begin{equation}
+    S_1^* = \corrSet \{ (\pCiC, \pBjB) \} \text{ that have residual errors} < e
+\end{equation}
+
+if \#iter $>$ max\_iter \ OR \ $\mathrm{size}(S_k^*) > t$
+
+\quad return best $S_k^*$
+
+$k$ is RANSAC iterator.
+\end{authornotes}
+
+\bigskip
+\noindent\textit{The loop above repeats --- resampling a new minimal set from $\corrSet_0$, re-solving via OLAE, and re-evaluating the consensus set --- until one of the two termination conditions above is met, at which point the best consensus set found is returned (and, typically, refined with a final OLAE solve over the full consensus set).}
+
+\newpage
+\section{Iterative-Closest-Point Algorithm}
+\label{sec:icp}
+
+\appendix
+\section{Miscellaneous Documentation}
+
+\subsection{RSO Direction Transformation Measurement Model}
+The unit line-of-sight vector to the Resident Space Object (RSO) observed in the camera frame $C$, denoted as $\uRSOcC$, can be mapped to the inertial frame $I$ by chaining the rigid body rotation transformations.
+
+The complete geometric measurement model is written as:
+\begin{equation}
+    \uRSOcI = \TIB \TBC \uRSOcC
+\end{equation}
+
+\begin{equation}
+   \mathit{N} = \{ \mathbf{O}, \hat{\vect{n}}_1, \hat{\vect{n}}_2, \hat{\vect{n}}_3 \}
+\end{equation}
+\begin{equation}
+    \mathit{I} = \{ \mathbf{O}, \hat{\vect{i}}_1, \hat{\vect{i}}_2, \hat{\vect{i}}_3 \}
+\end{equation}
+\begin{equation}
+   \mathit{M} = \{ \mathbf{M}, \hat{\vect{m}}_1, \hat{\vect{m}}_2, \hat{\vect{m}}_3 \}
+\end{equation}
+
+\end{document}
